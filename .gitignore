@@ -1,0 +1,61 @@
+# ─── Secrets & Credentials ────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.log
+
+# ─── Virtual environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+conda-env/
+
+# ─── Node / Next.js ───────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.vercel
+
+# ─── Uploads / CAD files (runtime) ───────────────────────────────────────────
+backend/uploads/
+*.step
+*.stp
+*.dxf
+*.glb
+*.gltf
+# Exception: keep the test cube
+!backend/tests/test_cube.step
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+# (docker-compose override files for local secrets)
+docker-compose.override.yml
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
