@@ -33,6 +33,8 @@ When tasked with modifying or adding a feature, immediately jump to the relevant
 Costing_calculator/
 ├── .env                            # Environment variables (DB URLs, JWT Secrets, Admin credentials)
 ├── .env.example                    # Template for environment configuration
+├── README.md                       # Master project overview, features, quickstart & setup documentation
+├── AGENTS.md                       # AI Agent guidance, project map, security mandates & self-maintenance rules
 ├── docker-compose.yml              # Container orchestration (PostgreSQL 16, FastAPI Backend, Next.js Frontend)
 ├── create_frontend.py              # Automated frontend component scaffolding utility
 ├── precision_engineering_interface_DESIGN.md # Detailed UI/UX spec for industrial costing UI
@@ -267,10 +269,10 @@ docker-compose exec frontend npx playwright test
 
 ---
 
-## 7. Mandatory Protocol for Maintaining `AGENTS.md`
+## 7. Mandatory Protocol for Maintaining `AGENTS.md` and `README.md`
 
 > ⚠️ **CRITICAL INSTRUCTION FOR ALL AI AGENTS**:
-> Whenever you modify the application (adding files, deleting files, renaming routes, altering state stores, updating schemas, or changing test setups), you **MUST UPDATE THIS `AGENTS.md` FILE IN THE EXACT SAME TASK STEP**.
+> Whenever you modify the application (adding files, deleting files, renaming routes, altering state stores, updating schemas, adding feature endpoints, or changing test setups), you **MUST UPDATE BOTH `AGENTS.md` AND `README.md` IN THE EXACT SAME TASK STEP**.
 
 ### Rules for Updating `AGENTS.md`:
 1. **File Added**: Add the new file to the **Quick Task-to-File Lookup Index** (Section 1) and the **Complete Project Map** (Section 2).
@@ -278,4 +280,9 @@ docker-compose exec frontend npx playwright test
 3. **New Test Added**: Update Section 6 (**Testing Protocols**) with instructions on how to run the new test file or test command.
 4. **Architectural / Security Change**: Document any new security middleware, feature gates, or API contract updates in Section 3 and Section 5.
 
-*Keeping `AGENTS.md` strictly synchronized guarantees zero token waste and perfect codebase awareness for all future agent interactions!*
+### Rules for Updating `README.md`:
+1. **New Feature / Endpoint Added**: Update Section 1 (**Key Features**) and Section 8 (**Repository Overview**) of `README.md` to reflect new user-facing functionality.
+2. **Tech Stack / Dependency Change**: Update Section 3 (**Tech Stack & Architecture**) with newly added libraries or services.
+3. **Setup / Environment Variable Added**: Update Section 4 (**Quick Start**) and Environment configuration tables.
+
+*Keeping `AGENTS.md` and `README.md` strictly synchronized guarantees zero documentation drift, zero token waste, and perfect codebase awareness for human developers and AI agents alike!*
