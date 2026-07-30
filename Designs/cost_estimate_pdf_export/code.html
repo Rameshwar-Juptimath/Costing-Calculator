@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CostEngine Pro - Finalize PDF</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#213145",
+                    "tertiary": "#595c5e",
+                    "tertiary-container": "#727577",
+                    "on-secondary-container": "#5c647a",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary": "#565e74",
+                    "primary": "#4648d4",
+                    "on-background": "#0b1c30",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed": "#dae2fd",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "on-primary-fixed": "#07006c",
+                    "primary-fixed": "#e1e0ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "outline": "#767586",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-surface-variant": "#464554",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface-container": "#e5eeff",
+                    "background": "#f8f9ff",
+                    "primary-container": "#6063ee",
+                    "on-secondary-fixed": "#131b2e",
+                    "tertiary-fixed": "#e0e3e5",
+                    "inverse-primary": "#c0c1ff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-bright": "#f8f9ff",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-high": "#dce9ff",
+                    "secondary-container": "#dae2fd",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#fffbff",
+                    "surface-tint": "#494bd6",
+                    "on-tertiary-container": "#fbfdff",
+                    "surface-variant": "#d3e4fe",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "surface-container-low": "#eff4ff",
+                    "surface": "#f8f9ff",
+                    "outline-variant": "#c7c4d7"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "cell-padding-y": "8px",
+                    "unit": "4px",
+                    "container-margin": "24px",
+                    "cell-padding-x": "12px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Inter"],
+                    "data-mono-sm": ["JetBrains Mono"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "data-mono": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-mono-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .print-shadow { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+            body { background: white !important; }
+        }
+        .a4-container {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: auto;
+        }
+        .data-grid-border {
+            border: 1px solid theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="bg-surface-dim font-body-md text-on-surface">
+<!-- Top Navigation Bar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline no-print fixed top-0 w-full z-50 flex justify-between items-center px-container-margin py-unit h-14">
+<div class="flex items-center gap-6">
+<span class="text-headline-md font-headline-md font-bold tracking-tight text-on-surface dark:text-inverse-on-surface">COST_ENGINE_v4.0</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md" href="#">BOM Explorer</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors font-body-md" href="#">Cost Trees</a>
+<a class="text-primary dark:text-inverse-primary border-b-2 border-primary pb-1 font-body-md" href="#">Exports</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">print</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-4 py-2 rounded-lg font-label-caps flex items-center gap-2 transition-all active:opacity-80" onclick="window.print()">
+                Finalize PDF
+                <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+</button>
+</div>
+</header>
+<!-- Side Navigation Bar (Visual Reference) -->
+<aside class="fixed left-0 top-14 h-full w-[240px] bg-surface-container-low dark:bg-inverse-surface border-r border-outline-variant dark:border-outline hidden lg:flex flex-col pt-8 pb-4 no-print">
+<div class="px-4 mb-8">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">Active Project</h3>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm font-bold">Project Alpha</p>
+<p class="text-[10px] text-on-surface-variant opacity-70">ID: 99283-X</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-3 py-2 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">precision_manufacturing</span>
+<span class="font-label-caps text-label-caps">Materials</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-3 py-2 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">engineering</span>
+<span class="font-label-caps text-label-caps">Labor</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-3 py-2 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">construction</span>
+<span class="font-label-caps text-label-caps">Tooling</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-3 py-2 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">factory</span>
+<span class="font-label-caps text-label-caps">Overhead</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high px-3 py-2 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary">gavel</span>
+<span class="font-label-caps text-label-caps">Compliance</span>
+</a>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full py-2 bg-secondary-container text-on-secondary-container rounded-lg font-label-caps hover:bg-secondary transition-all hover:text-on-secondary">
+                New Calculation
+            </button>
+</div>
+</aside>
+<!-- Main Content Area (The Workspace) -->
+<main class="lg:ml-[240px] pt-24 pb-32 px-4 md:px-8">
+<!-- Simulation of a PDF Viewport -->
+<div class="a4-container bg-white shadow-xl print-shadow relative">
+<!-- Document Header -->
+<div class="flex justify-between items-start border-b-2 border-on-surface pb-6 mb-8">
+<div>
+<h1 class="font-headline-md text-headline-md font-black tracking-tighter text-primary">CostEngine Pro</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Precision Manufacturing Analysis</p>
+</div>
+<div class="text-right">
+<p class="font-data-mono text-data-mono text-on-surface-variant">Quote Ref: <span class="text-on-surface font-bold">CE-4402</span></p>
+<p class="font-data-mono text-data-mono text-on-surface-variant">Date: <span class="text-on-surface">October 24, 2024</span></p>
+</div>
+</div>
+<!-- Section 1: Executive Summary -->
+<section class="mb-10">
+<h2 class="font-label-caps text-label-caps border-l-4 border-primary pl-3 mb-4 text-primary">01 // EXECUTIVE SUMMARY</h2>
+<div class="grid grid-cols-3 gap-0 border border-outline-variant">
+<div class="p-4 bg-surface-container border-r border-outline-variant">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Total Estimated Cost</p>
+<p class="font-data-mono text-display-lg text-on-surface">₹4,28,450</p>
+</div>
+<div class="p-4 bg-surface-container border-r border-outline-variant">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase mb-1">Margin (%)</p>
+<p class="font-data-mono text-display-lg text-primary">22.5%</p>
+</div>
+<div class="p-4 bg-primary text-on-primary">
+<p class="font-label-caps text-[10px] opacity-80 uppercase mb-1">Final Quote Price</p>
+<p class="font-data-mono text-display-lg">₹5,24,851</p>
+</div>
+</div>
+</section>
+<!-- Section 2: Component Specifications -->
+<section class="mb-10">
+<h2 class="font-label-caps text-label-caps border-l-4 border-primary pl-3 mb-4 text-primary">02 // COMPONENT SPECIFICATIONS</h2>
+<div class="grid grid-cols-2 gap-8 items-start">
+<div class="aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-80" data-alt="A highly detailed 3D CAD technical drawing of a complex industrial engine manifold, presented in a clean wireframe style with precise technical annotations. The lighting is cold and clinical, emphasizing the matte gray and metallic blue surfaces of the component. The background is a minimalist, professional studio setup with soft directional shadows, maintaining a high-density engineering dashboard aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDE6JQtaTV-XgQIXy0XL8pRlKFAcUvBtz0xfKovyPmQtSkpPVlEgY_xh7UHDdz8fHPnQmV_Rvbr7eW8XFpmpNB7W1qHJseEGjrZiOktc8j654SxREbiKtumh_1vNcKFuSX4eU7AtXsUUD-M2A1Qfb8BWGHM7a4S245PF6IvuOmITyOHjzS7QririhRaYI9Pr-s9B7dMTyZpaxQriqnvn-l8tTC5tTbZdKbTn-2qxmaFjEOSvhD_ty9Qqw"/>
+</div>
+<div class="space-y-4">
+<div class="border-b border-outline-variant pb-2">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase">Volume</p>
+<p class="font-data-mono text-body-md">1,450.42 cm³</p>
+</div>
+<div class="border-b border-outline-variant pb-2">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase">Surface Area</p>
+<p class="font-data-mono text-body-md">842.15 cm²</p>
+</div>
+<div class="border-b border-outline-variant pb-2">
+<p class="font-label-caps text-[10px] text-on-surface-variant uppercase">Bounding Box</p>
+<p class="font-data-mono text-body-md">240mm x 180mm x 65mm</p>
+</div>
+<div class="bg-secondary-container/30 p-3 border-l-4 border-secondary">
+<p class="font-body-sm text-on-secondary-container">Geometric complexity detected: <span class="font-bold">High</span>. Requires 5-axis simultaneous milling for optimal surface finish.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Detailed Cost Breakdown (BOM) -->
+<section class="mb-10">
+<h2 class="font-label-caps text-label-caps border-l-4 border-primary pl-3 mb-4 text-primary">03 // DETAILED COST BREAKDOWN (BOM)</h2>
+<div class="border border-outline-variant">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest border-b border-outline-variant">
+<th class="p-cell-padding-x py-cell-padding-y font-label-caps text-[10px] text-on-surface-variant">CATEGORY</th>
+<th class="p-cell-padding-x py-cell-padding-y font-label-caps text-[10px] text-on-surface-variant">DESCRIPTION</th>
+<th class="p-cell-padding-x py-cell-padding-y font-label-caps text-[10px] text-on-surface-variant text-right">UNIT COST</th>
+<th class="p-cell-padding-x py-cell-padding-y font-label-caps text-[10px] text-on-surface-variant text-right">QTY</th>
+<th class="p-cell-padding-x py-cell-padding-y font-label-caps text-[10px] text-on-surface-variant text-right">TOTAL (INR)</th>
+</tr>
+</thead>
+<tbody class="font-data-mono text-[13px] divide-y divide-outline-variant">
+<tr>
+<td class="px-cell-padding-x py-cell-padding-y font-bold">Raw Material</td>
+<td class="px-cell-padding-x py-cell-padding-y">Aluminium 6061-T6 Billet</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">₹450/kg</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">120 kg</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right font-bold">₹54,000</td>
+</tr>
+<tr>
+<td class="px-cell-padding-x py-cell-padding-y font-bold">Tooling</td>
+<td class="px-cell-padding-x py-cell-padding-y">Custom Fixture/Jig (One-time)</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">₹85,000</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">1</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right font-bold">₹85,000</td>
+</tr>
+<tr>
+<td class="px-cell-padding-x py-cell-padding-y font-bold">Manufacturing</td>
+<td class="px-cell-padding-x py-cell-padding-y">CNC 5-Axis Milling (Machine Time)</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">₹3,200/hr</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">48 hrs</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right font-bold">₹1,53,600</td>
+</tr>
+<tr>
+<td class="px-cell-padding-x py-cell-padding-y font-bold">Labor</td>
+<td class="px-cell-padding-x py-cell-padding-y">Specialist CAM Programming &amp; Finishing</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">₹1,500/hr</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">24 hrs</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right font-bold">₹36,000</td>
+</tr>
+<tr>
+<td class="px-cell-padding-x py-cell-padding-y font-bold">Logistics</td>
+<td class="px-cell-padding-x py-cell-padding-y">Standard Ground Freight (Inbound)</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">₹8,500</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right">1</td>
+<td class="px-cell-padding-x py-cell-padding-y text-right font-bold">₹8,500</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Section 4: Overheads & Taxes -->
+<section class="mb-10">
+<h2 class="font-label-caps text-label-caps border-l-4 border-primary pl-3 mb-4 text-primary">04 // OVERHEADS &amp; TAXES</h2>
+<div class="bg-surface p-6 border border-outline-variant flex justify-end">
+<div class="w-full md:w-1/2 space-y-2">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-on-surface-variant">Factory Overheads (Flat 5%)</span>
+<span class="font-data-mono-sm">₹16,855</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-on-surface-variant">Machineries Depreciation</span>
+<span class="font-data-mono-sm">₹7,240</span>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-outline-variant">
+<span class="font-body-sm text-on-surface font-bold">Subtotal (Pre-tax)</span>
+<span class="font-data-mono text-body-md font-bold">₹3,61,195</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-on-surface-variant">GST (18%)</span>
+<span class="font-data-mono-sm">₹65,015</span>
+</div>
+<div class="flex justify-between items-center pt-3 mt-2 border-t-2 border-on-surface">
+<span class="font-label-caps text-on-surface font-black">TOTAL ESTIMATE</span>
+<span class="font-data-mono text-headline-md font-black text-primary">₹4,28,450</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Document Footer -->
+<div class="absolute bottom-10 left-20 right-20 border-t border-outline-variant pt-6 flex justify-between items-end">
+<div class="max-w-md">
+<p class="text-[10px] font-body-sm text-on-surface-variant italic">
+                        Disclaimer: This document is an estimate generated by Precision Manufacturing Costing Engine. All values are subject to change based on actual market rates for raw materials and machining complexity at the time of purchase order.
+                    </p>
+</div>
+<div class="text-right">
+<p class="font-label-caps text-[10px] text-on-surface-variant">Page 1 of 1</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Global App Footer -->
+<footer class="fixed bottom-0 left-0 w-full z-50 bg-inverse-surface dark:bg-on-background flex justify-between items-center px-container-margin py-2 no-print">
+<div class="flex items-center gap-4">
+<span class="text-label-caps font-label-caps text-on-primary">© 2024 PRECISION MANUFACTURING COSTING ENGINE</span>
+<div class="h-4 w-px bg-on-primary opacity-20"></div>
+<p class="text-surface-dim opacity-70 font-body-sm text-[11px]">All estimates subject to market variance.</p>
+</div>
+<div class="flex gap-6">
+<a class="text-surface-dim opacity-70 hover:text-on-primary transition-opacity font-body-sm text-[11px]" href="#">Legal</a>
+<a class="text-surface-dim opacity-70 hover:text-on-primary transition-opacity font-body-sm text-[11px]" href="#">Privacy</a>
+<a class="text-surface-dim opacity-70 hover:text-on-primary transition-opacity font-body-sm text-[11px]" href="#">Internal Audit</a>
+</div>
+</footer>
+<!-- Persistent Calculation Bar (Sticky Footer) -->
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-on-background text-white px-8 py-3 rounded-full flex items-center gap-12 shadow-2xl z-40 no-print border border-outline">
+<div class="flex flex-col">
+<span class="text-[9px] font-label-caps opacity-50 uppercase tracking-widest">Base Cost</span>
+<span class="font-data-mono text-body-md">₹3,37,100</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[9px] font-label-caps opacity-50 uppercase tracking-widest">Taxes</span>
+<span class="font-data-mono text-body-md text-error-container">₹65,015</span>
+</div>
+<div class="h-8 w-px bg-white/20"></div>
+<div class="flex flex-col">
+<span class="text-[9px] font-label-caps text-primary-fixed-dim uppercase tracking-widest">Live Final Quote</span>
+<span class="font-data-mono text-headline-md font-bold text-primary-fixed">₹5,24,851</span>
+</div>
+<button class="bg-primary px-4 py-2 rounded-full font-label-caps text-[11px] hover:bg-primary-container transition-colors">
+            REFRESH
+        </button>
+</div>
+<script>
+        // Simple micro-interaction for active nav states
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // If we're not actually navigating, just simulate state
+                if(this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    document.querySelectorAll('nav a').forEach(l => {
+                        l.classList.remove('text-primary', 'dark:text-inverse-primary', 'border-b-2', 'border-primary', 'pb-1');
+                        l.classList.add('text-on-surface-variant', 'dark:text-surface-variant');
+                    });
+                    this.classList.add('text-primary', 'dark:text-inverse-primary', 'border-b-2', 'border-primary', 'pb-1');
+                    this.classList.remove('text-on-surface-variant', 'dark:text-surface-variant');
+                }
+            });
+        });
+    </script>
+</body></html>

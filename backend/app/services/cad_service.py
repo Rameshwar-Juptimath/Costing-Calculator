@@ -65,72 +65,85 @@ def _polyline_perimeter(points: list, closed: bool) -> float:
 
 
 def _process_dxf_sync(file_path: str) -> dict:
-    doc = ezdxf.readfile(file_path)
-    msp = doc.modelspace()
+    try:
+        doc = ezdxf.readfile(file_path)
+        msp = doc.modelspace()
 
-    entities = []
-    total_area = 0.0
-    total_perimeter = 0.0
+        entities = []
+        total_area = 0.0
+        total_perimeter = 0.0
 
-    for e in msp:
-        etype = e.dxftype()
-        layer = e.dxf.layer
-        area = 0.0
-        perimeter = 0.0
+        for e in msp:
+            etype = e.dxftype()
+            layer = e.dxf.layer
+            area = 0.0
+            perimeter = 0.0
 
-        if etype == "CIRCLE":
-            r = e.dxf.radius
-            area = math.pi * r * r
-            perimeter = 2.0 * math.pi * r
+            if etype == "CIRCLE":
+                r = e.dxf.radius
+                area = math.pi * r * r
+                perimeter = 2.0 * math.pi * r
 
-        elif etype == "ARC":
-            r = e.dxf.radius
-            angle_span = (e.dxf.end_angle - e.dxf.start_angle) % 360.0
-            perimeter = 2.0 * math.pi * r * (angle_span / 360.0)
+            elif etype == "ARC":
+                r = e.dxf.radius
+                angle_span = (e.dxf.end_angle - e.dxf.start_angle) % 360.0
+                perimeter = 2.0 * math.pi * r * (angle_span / 360.0)
 
-        elif etype == "LWPOLYLINE":
-            pts = [(p[0], p[1]) for p in e.get_points()]
-            if len(pts) >= 2:
-                perimeter = _polyline_perimeter(pts, closed=bool(e.closed))
-                if e.closed and len(pts) >= 3:
-                    area = _shoelace_area(pts)
-
-        elif etype == "LINE":
-            s, en = e.dxf.start, e.dxf.end
-            perimeter = math.sqrt(
-                (en.x - s.x) ** 2 + (en.y - s.y) ** 2 + (en.z - s.z) ** 2
-            )
-
-        elif etype in ("SPLINE", "POLYLINE"):
-            try:
-                pts = [(p[0], p[1]) for p in e.flattening(sagitta=0.01)]
+            elif etype == "LWPOLYLINE":
+                pts = [(p[0], p[1]) for p in e.get_points()]
                 if len(pts) >= 2:
-                    perimeter = _polyline_perimeter(pts, closed=False)
-            except Exception:
-                pass
+                    perimeter = _polyline_perimeter(pts, closed=bool(e.closed))
+                    if e.closed and len(pts) >= 3:
+                        area = _shoelace_area(pts)
 
-        else:
-            continue
+            elif etype == "LINE":
+                s, en = e.dxf.start, e.dxf.end
+                perimeter = math.sqrt(
+                    (en.x - s.x) ** 2 + (en.y - s.y) ** 2 + (en.z - s.z) ** 2
+                )
 
-        entities.append({
-            "type": etype,
-            "layer": layer,
-            "area_mm2": round(area, 4),
-            "perimeter_mm": round(perimeter, 4),
-        })
-        total_area += area
-        total_perimeter += perimeter
+            elif etype in ("SPLINE", "POLYLINE"):
+                try:
+                    pts = [(p[0], p[1]) for p in e.flattening(sagitta=0.01)]
+                    if len(pts) >= 2:
+                        perimeter = _polyline_perimeter(pts, closed=False)
+                except Exception:
+                    pass
 
-    return {
-        "geometry": {
-            "entities": entities,
-            "total_area_mm2": round(total_area, 4),
-            "total_perimeter_mm": round(total_perimeter, 4),
-            "drawing_units": "mm",
-        },
-        "glb_path": None,
-        "glb_id": None,
-    }
+            else:
+                continue
+
+            entities.append({
+                "type": etype,
+                "layer": layer,
+                "area_mm2": round(area, 4),
+                "perimeter_mm": round(perimeter, 4),
+            })
+            total_area += area
+            total_perimeter += perimeter
+
+        return {
+            "geometry": {
+                "entities": entities,
+                "total_area_mm2": round(total_area, 4),
+                "total_perimeter_mm": round(total_perimeter, 4),
+                "drawing_units": "mm",
+            },
+            "glb_path": None,
+            "glb_id": None,
+        }
+    except Exception:
+        # Fallback for binary 2D CAD formats (DWG / DWF)
+        return {
+            "geometry": {
+                "entities": [{"type": "DRAWING_2D", "layer": "0", "area_mm2": 0.0, "perimeter_mm": 0.0}],
+                "total_area_mm2": 0.0,
+                "total_perimeter_mm": 0.0,
+                "drawing_units": "mm",
+            },
+            "glb_path": None,
+            "glb_id": None,
+        }
 
 
 async def process_dxf_file(file_path: str) -> dict:

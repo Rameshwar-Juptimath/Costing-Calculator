@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CostEngine Pro - Main Estimator</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "on-surface": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "tertiary-fixed": "#e0e3e5",
+                    "on-tertiary-fixed": "#191c1e",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#131b2e",
+                    "secondary-fixed": "#dae2fd",
+                    "secondary-container": "#dae2fd",
+                    "tertiary-container": "#727577",
+                    "on-primary": "#ffffff",
+                    "primary": "#4648d4",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-primary": "#c0c1ff",
+                    "on-primary-fixed-variant": "#2f2ebe",
+                    "surface-variant": "#d3e4fe",
+                    "on-primary-container": "#fffbff",
+                    "primary-fixed": "#e1e0ff",
+                    "background": "#f8f9ff",
+                    "secondary": "#565e74",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-surface-variant": "#464554",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#c0c1ff",
+                    "inverse-surface": "#213145",
+                    "on-background": "#0b1c30",
+                    "outline-variant": "#c7c4d7",
+                    "on-tertiary-container": "#fbfdff",
+                    "on-secondary-container": "#5c647a",
+                    "error": "#ba1a1a",
+                    "primary-container": "#6063ee",
+                    "surface-container-highest": "#d3e4fe",
+                    "on-error": "#ffffff",
+                    "surface-container": "#e5eeff",
+                    "surface-tint": "#494bd6",
+                    "tertiary": "#595c5e",
+                    "on-primary-fixed": "#07006c",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "outline": "#767586",
+                    "surface-container-high": "#dce9ff",
+                    "surface": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed-variant": "#3f465c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-margin": "24px",
+                    "unit": "4px",
+                    "cell-padding-y": "8px",
+                    "cell-padding-x": "12px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "data-mono": ["JetBrains Mono"],
+                    "body-md": ["Inter"],
+                    "data-mono-sm": ["JetBrains Mono"]
+            },
+            "fontSize": {
+                    "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "data-mono-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for high density tables */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #767586;
+            border-radius: 10px;
+        }
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<div class="flex min-h-screen overflow-hidden">
+<!-- SideNavBar (Predicted JSON Component 1) -->
+<aside class="flex flex-col h-full py-container-margin px-4 bg-surface dark:bg-on-surface w-[240px] h-screen sticky left-0 top-0 border-r border-outline-variant dark:border-outline z-50">
+<div class="mb-8 px-2">
+<h1 class="text-headline-md font-headline-md text-primary dark:text-primary-fixed">CostEngine Pro</h1>
+<p class="text-label-caps font-label-caps text-secondary uppercase tracking-widest mt-1">Enterprise Tier</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active Navigation: New Estimate -->
+<button class="flex items-center w-full px-3 py-3 text-primary dark:text-primary-fixed font-bold border-r-2 border-primary transition-colors duration-150 ease-in-out hover:bg-surface-container-low">
+<span class="material-symbols-outlined mr-3">add_chart</span>
+<span class="text-body-md font-body-md">New Estimate</span>
+</button>
+<button class="flex items-center w-full px-3 py-3 text-secondary dark:text-secondary-fixed-dim transition-colors duration-150 ease-in-out hover:bg-surface-container-low">
+<span class="material-symbols-outlined mr-3">history</span>
+<span class="text-body-md font-body-md">Past Quotes</span>
+</button>
+<button class="flex items-center w-full px-3 py-3 text-secondary dark:text-secondary-fixed-dim transition-colors duration-150 ease-in-out hover:bg-surface-container-low">
+<span class="material-symbols-outlined mr-3">settings</span>
+<span class="text-body-md font-body-md">Company Settings</span>
+</button>
+</nav>
+<div class="mt-auto flex items-center p-2 border-t border-outline-variant pt-4">
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest mr-3">
+<img class="w-full h-full object-cover" data-alt="Professional profile portrait of a senior manufacturing engineer in a clean, modern office setting. The lighting is neutral and corporate, with a shallow depth of field focusing on the subject's confident expression. The color palette consists of cool grays and crisp whites, embodying authority and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa88feug3r5S3rKnP7QhJ1qAI6qr39BJ9Mi5jDrUNfz6lZCQ3tKTBFi4WevgRZ11p92QNGexmTd0wxafzbxfB-zfeTo36C-q9KebRUto_CD8vsPbTnMimapi8sJNb-CaafG6HKHubuWHZ81xGRDLZnPCCLo1uo3zSF-98OaZWsbT14na6D6maHs1b6YTOKb-SsKvGgy9xDp86D5HdFlz2ajZ_Ae1Q4zmEmszXxmojOlOtkkcZbvHD6qw"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-body-sm font-body-sm truncate font-semibold">Alex Rivera</p>
+<p class="text-label-caps font-label-caps text-secondary truncate">Lead Estimator</p>
+</div>
+</div>
+</aside>
+<!-- Main Workspace Canvas -->
+<main class="flex-1 flex flex-row relative overflow-hidden">
+<!-- Left Pane: Dark CAD Viewer (60%) -->
+<section class="w-3/5 bg-[#0b1c30] relative overflow-hidden border-r border-outline-variant">
+<!-- Segmented Control for View -->
+<div class="absolute top-4 left-4 z-10 bg-slate-900/80 backdrop-blur-md p-1 rounded-lg border border-slate-700 flex gap-1">
+<button class="px-4 py-1.5 rounded bg-white text-slate-900 text-label-caps font-label-caps transition-all">3D Model</button>
+<button class="px-4 py-1.5 rounded text-slate-400 hover:text-white text-label-caps font-label-caps transition-all">2D Blueprint</button>
+</div>
+<!-- CAD Placeholder via Image with prompt -->
+<div class="w-full h-full flex items-center justify-center p-8">
+<div class="w-full h-full relative border border-slate-700/50 rounded-xl overflow-hidden group">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="A high-fidelity 3D computer-aided design (CAD) render of a complex industrial engine manifold. The component is displayed in a dark, technical workspace environment with blue wireframe outlines highlighting its geometry. Lighting is sharp and clinical, emphasizing the metallic textures and precise engineering. The background features a subtle dark grid, maintaining a professional manufacturing engineering aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeLlW56jBoMpDOylX3JX4pYsT_O29YPmjzEb7UVWna-1lEX2sw3mBN9erOOaEFwK7J9YxaiImWIJX3V6gDWQXdFsmy7SAGIGYhI6MytTov1QLOJ2WxFVAm1xCML8LoCkfMWzpSnc9ykoFx6BVfZ39gXk2yZ8ucAOm7oZuQSmH2cL6eizZyUXdcTswm7kplP--wlndYv2NxzwkW4_AwT-RRxJ7fgVKG39Get98tymQLEikP4xnYyYQy5w"/>
+<!-- Geometry Info Overlay -->
+<div class="absolute bottom-4 left-4 p-4 bg-slate-900/90 border border-slate-700 rounded-lg backdrop-blur-lg">
+<h4 class="text-label-caps font-label-caps text-slate-400 mb-2 border-b border-slate-700 pb-1">GEOMETRY SPECS</h4>
+<div class="grid grid-cols-1 gap-2">
+<div class="flex justify-between items-center gap-8">
+<span class="text-label-caps font-label-caps text-slate-500">Volume</span>
+<span class="text-data-mono font-data-mono text-white">1240mm³</span>
+</div>
+<div class="flex justify-between items-center gap-8">
+<span class="text-label-caps font-label-caps text-slate-500">Surface Area</span>
+<span class="text-data-mono font-data-mono text-white">850mm²</span>
+</div>
+<div class="flex justify-between items-center gap-8">
+<span class="text-label-caps font-label-caps text-slate-500">Bounding Box</span>
+<span class="text-data-mono font-data-mono text-white">120x80x45mm</span>
+</div>
+</div>
+</div>
+<!-- Floating Overlay Controls (Right) -->
+<div class="absolute top-1/2 -translate-y-1/2 right-4 flex flex-col gap-2 p-1 bg-slate-900/90 border border-slate-700 rounded-xl">
+<button class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors" title="Zoom">
+<span class="material-symbols-outlined">zoom_in</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors" title="Pan">
+<span class="material-symbols-outlined">drag_pan</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors" title="Wireframe">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<div class="h-px bg-slate-700 mx-2"></div>
+<button class="w-10 h-10 flex items-center justify-center text-slate-300 hover:bg-slate-800 hover:text-white rounded transition-colors" title="Reset View">
+<span class="material-symbols-outlined">restart_alt</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Pane: Direct Cost Input & Calculation (40%) -->
+<section class="w-2/5 h-full flex flex-col bg-surface overflow-hidden">
+<!-- Smart Banner: Missing Overheads -->
+<div class="p-4 bg-amber-50 border-l-4 border-amber-500 flex gap-3 animate-fade">
+<span class="material-symbols-outlined text-amber-600">warning</span>
+<div class="flex-1">
+<p class="text-body-sm font-body-sm text-amber-900 leading-tight">
+<span class="font-bold">Warning:</span> Company overheads are not configured. Go to Settings to input them for accurate final pricing.
+                        </p>
+<a class="text-label-caps font-label-caps text-amber-700 underline mt-1 block" href="#">Configure Now</a>
+</div>
+</div>
+<!-- Input Form: Dense Content -->
+<div class="flex-1 overflow-y-auto p-gutter space-y-6">
+<div class="flex justify-between items-end border-b border-outline-variant pb-2">
+<h2 class="text-headline-md font-headline-md">Primary Cost Inputs</h2>
+<span class="text-label-caps font-label-caps text-secondary">Quote Ref: CE-4402</span>
+</div>
+<div class="grid grid-cols-1 gap-5">
+<!-- Raw Material -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Raw Material</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="text-label-caps font-label-caps text-outline mr-2">INR</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="12500"/>
+<span class="material-symbols-outlined text-outline text-[20px]">inventory_2</span>
+</div>
+</div>
+<!-- Tooling -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Tooling</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="text-label-caps font-label-caps text-outline mr-2">INR</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="8000"/>
+<span class="material-symbols-outlined text-outline text-[20px]">build_circle</span>
+</div>
+</div>
+<!-- Manufacturing Cost -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Manufacturing Cost</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="text-label-caps font-label-caps text-outline mr-2">INR</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="15200"/>
+<span class="material-symbols-outlined text-outline text-[20px]">precision_manufacturing</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Labour Cost -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Labour Cost</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="4500"/>
+<span class="material-symbols-outlined text-outline text-[20px]">engineering</span>
+</div>
+</div>
+<!-- Inspection -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Inspection</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="2200"/>
+<span class="material-symbols-outlined text-outline text-[20px]">verified</span>
+</div>
+</div>
+</div>
+<!-- Logistics -->
+<div class="space-y-1">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Logistics</label>
+<div class="flex items-center h-10 border border-outline px-3 bg-white focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
+<span class="text-label-caps font-label-caps text-outline mr-2">INR</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-data-mono text-data-mono p-0" type="number" value="3270"/>
+<span class="material-symbols-outlined text-outline text-[20px]">local_shipping</span>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-outline-variant space-y-4">
+<h3 class="text-label-caps font-label-caps text-secondary">Summary Metadata</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 bg-surface-container-low rounded">
+<p class="text-label-caps font-label-caps text-on-secondary-container mb-1">Lead Time</p>
+<p class="text-body-md font-semibold">12 Working Days</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded">
+<p class="text-label-caps font-label-caps text-on-secondary-container mb-1">Batch Size</p>
+<p class="text-body-md font-semibold">500 Units</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Calculation Footer -->
+<footer class="h-20 bg-on-surface flex items-center justify-between px-gutter border-t border-outline">
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-tertiary-fixed-dim uppercase tracking-wider">Calculated Estimate (INR)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-primary-fixed-dim font-data-mono text-[28px] leading-none">45,670.00</span>
+<span class="text-tertiary-fixed text-label-caps">Total Cost</span>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary-container text-white px-8 h-12 rounded-lg font-bold shadow-lg transition-all active:scale-95 flex items-center gap-2">
+                        Generate Quote
+                        <span class="material-symbols-outlined">send</span>
+</button>
+</footer>
+</section>
+</main>
+</div>
+<!-- Micro-Interaction Script -->
+<script>
+        // Simple input calculator reaction
+        const inputs = document.querySelectorAll('input[type="number"]');
+        const estimateDisplay = document.querySelector('.text-primary-fixed-dim');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                let total = 0;
+                inputs.forEach(i => total += parseFloat(i.value || 0));
+                
+                // Add a small pulse effect on change
+                estimateDisplay.classList.remove('animate-pulse');
+                void estimateDisplay.offsetWidth; // Trigger reflow
+                estimateDisplay.classList.add('animate-pulse');
+                
+                estimateDisplay.textContent = total.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                
+                setTimeout(() => {
+                    estimateDisplay.classList.remove('animate-pulse');
+                }, 500);
+            });
+        });
+
+        // 3D/2D Toggle Interaction
+        const viewButtons = document.querySelectorAll('.bg-slate-900\\/80 button');
+        viewButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                viewButtons.forEach(b => {
+                    b.classList.remove('bg-white', 'text-slate-900');
+                    b.classList.add('text-slate-400');
+                });
+                btn.classList.add('bg-white', 'text-slate-900');
+                btn.classList.remove('text-slate-400');
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Upgrade Successful - Costing Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-secondary-container": "#5c647a",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#767586",
+                        "primary-fixed": "#e1e0ff",
+                        "inverse-surface": "#213145",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary-container": "#6063ee",
+                        "surface-container": "#e5eeff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#494bd6",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-fixed": "#dae2fd",
+                        "primary": "#4648d4",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-primary-container": "#fffbff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#727577",
+                        "error": "#ba1a1a",
+                        "secondary": "#565e74",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-primary": "#c0c1ff",
+                        "secondary-container": "#dae2fd",
+                        "on-tertiary-container": "#fbfdff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "tertiary": "#595c5e",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-high": "#dce9ff",
+                        "background": "#f8f9ff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-primary-fixed": "#07006c",
+                        "outline-variant": "#c7c4d7",
+                        "on-surface-variant": "#464554",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "cell-padding-x": "12px",
+                        "unit": "4px",
+                        "cell-padding-y": "8px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "data-mono-sm": ["JetBrains Mono"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 16px;
+        }
+        .success-checkmark-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(70, 72, 212, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(70, 72, 212, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(70, 72, 212, 0); }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-gutter h-14 sticky top-0 z-40 bg-surface dark:bg-on-surface border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md text-primary dark:text-primary-fixed">Costing Engine</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-4 items-center">
+<span class="text-label-caps font-label-caps text-secondary uppercase tracking-widest bg-secondary-container px-2 py-1 rounded">Enterprise Tier</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="Help">help_outline</span>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="h-full w-full object-cover" data-alt="A professional headshot of a senior manufacturing analyst in a clean-lit office environment. The image is crisp with soft bokeh, reflecting a modern corporate aesthetic with cool blue and slate grey tones that align with the clinical precision of the financial software brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHt4SiQcxAlS2r6rsuAdL0QqHR2-MWwQpbgepIoj4wiw_FhThfUc2Tc_yLzmO08tdYaLG0Ch8wW1fc03NhJL3QgkFzvTqjaWeflJOvOqHmOyU8TaToVEhcghI4gAjwNo8CxOWhRIpJFYIjUQLq8ErSCOMWeitEeKTmslr8crHzJUH5LIR1iTbTOlvVB8bxW8D8FDJS4zY-3zrj2S2q58Ai-8I8n1xF0EM604-9RVgdfjwI-7zXx3Cf0A"/>
+</div>
+</div>
+</header>
+<main class="flex-grow flex flex-col items-center justify-center p-gutter relative">
+<!-- Success Canvas Area -->
+<div class="max-w-4xl w-full flex flex-col md:flex-row items-center gap-12 py-12">
+<!-- Left: Hero Success Graphic -->
+<div class="w-full md:w-1/2 flex flex-col items-center justify-center relative">
+<div class="relative z-10 bg-surface-container-lowest p-8 rounded-xl border border-outline-variant shadow-sm flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-full bg-primary-container flex items-center justify-center mb-6 success-checkmark-pulse">
+<span class="material-symbols-outlined text-white text-6xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h1 class="text-display-lg font-display-lg text-on-surface mb-4">Welcome to Pro Tier</h1>
+<p class="text-body-md font-body-md text-on-surface-variant max-w-sm mb-8">
+                        Your account has been upgraded. You now have full access to automated overhead costing and financial exports.
+                    </p>
+<div class="flex flex-col w-full gap-3">
+<button class="bg-primary text-on-primary py-3 px-6 rounded font-label-caps text-label-caps transition-transform active:scale-95 flex items-center justify-center gap-2">
+                            Go to Settings
+                            <span class="material-symbols-outlined text-sm">settings</span>
+</button>
+<button class="bg-slate-100 text-on-surface-variant py-3 px-6 rounded font-label-caps text-label-caps transition-transform active:scale-95 border border-outline-variant">
+                            Back to Estimator
+                        </button>
+</div>
+</div>
+<!-- Background Decorative Element (Abstract Data Visualization) -->
+<div class="absolute -z-10 opacity-10 blur-3xl w-full h-full bg-primary scale-150 pointer-events-none"></div>
+</div>
+<!-- Right: Feature Cards (Bento Style) -->
+<div class="w-full md:w-1/2 grid grid-cols-1 gap-4">
+<div class="bg-surface-container-low border border-outline-variant p-5 rounded-lg">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-container/10 rounded">analytics</span>
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface mb-1">Automated Overheads</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Real-time calculation of indirect labor, utilities, and facility depreciation applied to every BOM.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant p-5 rounded-lg">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-container/10 rounded">ios_share</span>
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface mb-1">Financial Exports</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Generate professional ERP-ready CSV, XML, and PDF reports for your procurement and finance teams.</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant p-5 rounded-lg">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-primary p-2 bg-primary-container/10 rounded">history</span>
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface mb-1">Extended History</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Unlimited version tracking for your complex assembly quotes with full audit trails.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Success Stats Bar (Data-Dense Influenced) -->
+<section class="bg-surface-container-highest px-gutter py-6 border-y border-outline-variant">
+<div class="max-w-6xl mx-auto flex flex-wrap justify-center md:justify-between gap-8">
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant">CURRENT TIER</span>
+<span class="text-data-mono font-data-mono text-primary text-xl uppercase tracking-tighter">Pro Enterprise</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant">BILLING CYCLE</span>
+<span class="text-data-mono font-data-mono text-on-surface text-xl">Annual - 2024</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant">AVAILABLE EXPORTS</span>
+<span class="text-data-mono font-data-mono text-on-surface text-xl">Unlimited</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-on-surface-variant">SUPPORT STATUS</span>
+<span class="text-data-mono font-data-mono text-on-surface text-xl">Priority 24/7</span>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="fixed bottom-0 w-full flex items-center justify-between px-container-margin bg-on-surface dark:bg-inverse-surface h-16 shadow-lg z-50">
+<span class="text-label-caps font-label-caps text-tertiary-fixed-dim">© 2024 Manufacturing Costing Engine. All calculations verified.</span>
+<div class="flex gap-4">
+<span class="text-label-caps font-label-caps text-primary-fixed uppercase cursor-pointer hover:opacity-80">Documentation</span>
+<span class="text-label-caps font-label-caps text-primary-fixed uppercase cursor-pointer hover:opacity-80">Support Portal</span>
+</div>
+</footer>
+<!-- Animated confetti-like effect script (micro-interaction) -->
+<canvas class="fixed inset-0 pointer-events-none z-30" id="success-canvas"></canvas>
+<script>
+        const canvas = document.getElementById('success-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + 20;
+                this.size = Math.random() * 4 + 2;
+                this.speedY = Math.random() * -3 - 2;
+                this.speedX = Math.random() * 2 - 1;
+                this.color = Math.random() > 0.5 ? '#4648d4' : '#6063ee';
+                this.opacity = 1;
+            }
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                this.opacity -= 0.005;
+            }
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function init() {
+            for (let i = 0; i < 40; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].opacity <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+        init();
+        animate();
+    </script>
+</body></html>

@@ -33,10 +33,10 @@ async def upload_cad(
         raise HTTPException(status_code=400, detail="No filename provided.")
 
     ext = file.filename.rsplit(".", 1)[-1].lower()
-    if ext not in {"step", "stp", "dxf"}:
+    if ext not in {"step", "stp", "dxf", "dwg", "dwf"}:
         raise HTTPException(
             status_code=400,
-            detail="Unsupported file type. Only .step, .stp, and .dxf are accepted.",
+            detail="Unsupported file type. Only .step, .stp, .dxf, .dwg, and .dwf are accepted.",
         )
 
     upload_dir = Path(settings.upload_dir)

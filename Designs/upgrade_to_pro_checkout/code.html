@@ -1,0 +1,327 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Upgrade to Pro - Costing Engine</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-secondary-container": "#5c647a",
+                        "on-error-container": "#93000a",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#767586",
+                        "primary-fixed": "#e1e0ff",
+                        "inverse-surface": "#213145",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary-container": "#6063ee",
+                        "surface-container": "#e5eeff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#494bd6",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-fixed": "#dae2fd",
+                        "primary": "#4648d4",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-primary-container": "#fffbff",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-error": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "on-surface": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#727577",
+                        "error": "#ba1a1a",
+                        "secondary": "#565e74",
+                        "on-tertiary-fixed-variant": "#444749",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "inverse-primary": "#c0c1ff",
+                        "secondary-container": "#dae2fd",
+                        "on-tertiary-container": "#fbfdff",
+                        "on-tertiary-fixed": "#191c1e",
+                        "tertiary": "#595c5e",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-high": "#dce9ff",
+                        "background": "#f8f9ff",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-primary-fixed": "#07006c",
+                        "outline-variant": "#c7c4d7",
+                        "on-surface-variant": "#464554",
+                        "on-secondary": "#ffffff",
+                        "surface-variant": "#d3e4fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "container-margin": "24px",
+                        "cell-padding-x": "12px",
+                        "unit": "4px",
+                        "cell-padding-y": "8px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "data-mono": ["JetBrains Mono"],
+                        "display-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "data-mono-sm": ["JetBrains Mono"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "data-mono": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "display-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-mono-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f8f9ff;
+        }
+        .step-inactive { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+        .focus-ring:focus-within {
+            box-shadow: 0 0 0 2px #4648d4;
+            border-color: #4648d4;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- TopNavBar: Execution of Shared Component JSON -->
+<header class="flex justify-between items-center w-full px-gutter h-14 sticky top-0 z-40 bg-surface border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md text-primary">Costing Engine</span>
+<span class="text-label-caps font-label-caps bg-primary-container text-on-primary-container px-2 py-0.5 rounded">PRO UPGRADE</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">help_outline</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a senior manufacturing analyst in a clean, brightly lit corporate office. The style is modern corporate with soft, high-key lighting, emphasizing a trustworthy and clinical professional look. The background features subtle industrial architectural elements in a cool slate and indigo color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvnUwzW5nmsJgCT4uxixu2VGRONhx3AJPRW3AWetKRYMpE5lpcyFYEj-FYxdqzUXSiDlUCvV90pZOE9ZybK6Bxsu5B-GoRTAULJC4Tl73nINOv9IzBH-jJh5zdmkIsFttTrx8y6MpObquBpRl67no-adZL0_goE2nIHhW7iaaSvzDCsjtlGLHANqkVJ2lVgHbU52YUs9o59Bm2VXMu4AHP00SoetSslBsr_meWbiQ427HLBZZRmvO4Sw">
+</div>
+<span class="text-label-caps font-label-caps hidden sm:block">Enterprise Tier</span>
+</div>
+</div>
+</header>
+<main class="min-h-[calc(100vh-120px)] flex flex-col md:flex-row max-w-7xl mx-auto py-container-margin px-gutter gap-12">
+<!-- Left Side: Feature Summary -->
+<section class="flex-1 space-y-8">
+<div>
+<h1 class="text-display-lg font-display-lg text-on-surface mb-2">You are upgrading to Pro</h1>
+<p class="text-on-surface-variant max-w-md">Unlock high-precision financial controls and industrial-grade reporting for your manufacturing operations.</p>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<!-- Pro Features -->
+<div class="flex gap-4 p-4 border border-outline-variant bg-surface-container-lowest rounded-lg">
+<div class="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded shrink-0">
+<span class="material-symbols-outlined">calculate</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md font-bold">Automated Overheads</h3>
+<p class="text-body-sm text-on-surface-variant">Intelligent absorption costing based on machine hours and labor rates.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 border border-outline-variant bg-surface-container-lowest rounded-lg">
+<div class="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded shrink-0">
+<span class="material-symbols-outlined">percent</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md font-bold">Tax &amp; Margin Calculation</h3>
+<p class="text-body-sm text-on-surface-variant">Real-time localized tax logic and dynamic margin floor enforcement.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 border border-outline-variant bg-surface-container-lowest rounded-lg">
+<div class="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded shrink-0">
+<span class="material-symbols-outlined">file_export</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md font-bold">Export Reports</h3>
+<p class="text-body-sm text-on-surface-variant">Generate professional PDF and Excel BOMs for procurement and clients.</p>
+</div>
+</div>
+<div class="flex gap-4 p-4 border border-outline-variant bg-surface-container-lowest rounded-lg">
+<div class="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded shrink-0">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div>
+<h3 class="font-headline-md text-body-md font-bold">Unlimited History</h3>
+<p class="text-body-sm text-on-surface-variant">Never lose a quote. Full version control for every bill-of-materials.</p>
+</div>
+</div>
+</div>
+<!-- Visualization Element -->
+<div class="relative h-48 rounded-xl overflow-hidden border border-outline-variant">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A clean, data-dense interface display showing complex manufacturing cost charts and line graphs. The aesthetic is clinical and industrial, like a fintech terminal, using a palette of Slate-50, Indigo-600, and soft whites. The lighting is crisp and even, conveying professional reliability and technical precision." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBB_o_ankaLHePUMZF3VN083BZ9DgzAAZQe3rBSgvKvdVPmE9NJ0luv2xayuZd-KSP80XXLOHZrx1v-6BUsL3hZYOcksqNaxd4XZkM2g6SU7dzJ5zOzktJkxTD4pPlo-oL_j_0CD4OK8PkTQS2hDcU6m-L3oQ_GJsRZTdGxOn7IZ5Q1IV5VDileTOa5mtm19plsgpGmhBYVzy2rDA1YbL4f2HFhMGU85MrnFI9XqWSSQPaKzs3PU7HHAA')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/60 to-transparent flex items-end p-6">
+<p class="text-on-primary text-body-sm font-medium italic">"The automated overheads feature saved us 12 hours of manual estimation per week." — Industrial Lead</p>
+</div>
+</div>
+</section>
+<!-- Right Side: Multi-Step Form -->
+<aside class="w-full md:w-[480px] space-y-6">
+<!-- Step 1: Billing Cycle -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg transition-all duration-300" id="step-1">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-label-caps">1</span>
+<h2 class="text-label-caps font-label-caps text-on-surface">Billing Cycle</h2>
+</div>
+<div class="flex p-1 bg-surface-container-high rounded border border-outline-variant">
+<button class="flex-1 py-2 text-label-caps font-label-caps transition-all rounded bg-surface-container-lowest shadow-sm text-primary" id="btn-monthly" onclick="setBilling('monthly')">
+                        Monthly
+                    </button>
+<button class="flex-1 py-2 text-label-caps font-label-caps transition-all rounded text-on-surface-variant hover:text-on-surface" id="btn-yearly" onclick="setBilling('yearly')">
+                        Yearly <span class="text-[10px] text-primary ml-1 font-bold">(-17%)</span>
+</button>
+</div>
+<div class="mt-4 flex justify-between items-baseline">
+<span class="text-on-surface-variant text-body-sm">Price:</span>
+<span class="font-data-mono text-headline-md text-primary" id="display-price">₹4,100.00<span class="text-body-sm text-on-surface-variant">/mo</span></span>
+</div>
+</div>
+<!-- Step 2: Payment Method -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg transition-all duration-300" id="step-2">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-label-caps">2</span>
+<h2 class="text-label-caps font-label-caps text-on-surface">Payment Method</h2>
+</div>
+<div class="space-y-4">
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">Card Number</label>
+<div class="relative">
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 font-data-mono text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="0000 0000 0000 0000" type="text">
+<span class="absolute right-3 top-2 material-symbols-outlined text-on-surface-variant">credit_card</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">Expiry Date</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 font-data-mono text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="MM/YY" type="text">
+</div>
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">CVC</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 font-data-mono text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="***" type="password">
+</div>
+</div>
+</div>
+</div>
+<!-- Step 3: Billing Address -->
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-lg transition-all duration-300" id="step-3">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-label-caps">3</span>
+<h2 class="text-label-caps font-label-caps text-on-surface">Billing Address</h2>
+</div>
+<div class="space-y-4">
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">Company Name (Optional)</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" type="text">
+</div>
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">Address Line</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" placeholder="Street, Building, Suite" type="text">
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="col-span-2">
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">City</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" type="text">
+</div>
+<div>
+<label class="text-label-caps font-label-caps text-on-surface-variant mb-1 block">Zip</label>
+<input class="w-full bg-surface-bright border border-outline-variant px-3 py-2 font-data-mono text-body-md focus:ring-1 focus:ring-primary focus:border-primary outline-none" type="text">
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Sticky Footer: Execution of Shared Component JSON logic -->
+<footer class="fixed bottom-0 w-full bg-on-surface h-16 flex items-center justify-between px-container-margin z-50 shadow-lg">
+<div class="flex flex-col">
+<span class="text-label-caps font-label-caps text-tertiary-fixed-dim">TOTAL DUE TODAY</span>
+<span class="font-data-mono text-on-primary text-headline-md tracking-tight" id="footer-total">₹4,100.00</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden sm:block text-right">
+<span class="block text-[10px] text-tertiary-fixed-dim font-bold uppercase tracking-widest">Security Verified</span>
+<div class="flex gap-2 justify-end opacity-60 grayscale hover:grayscale-0 transition-all">
+<span class="material-symbols-outlined text-on-primary text-sm">lock</span>
+<span class="material-symbols-outlined text-on-primary text-sm">verified</span>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 font-label-caps text-label-caps rounded flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all">
+                Confirm Upgrade
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</footer>
+<!-- Spacer for Sticky Footer -->
+<div class="h-20"></div>
+<script>
+        function setBilling(plan) {
+            const displayPrice = document.getElementById('display-price');
+            const footerTotal = document.getElementById('footer-total');
+            const btnMonthly = document.getElementById('btn-monthly');
+            const btnYearly = document.getElementById('btn-yearly');
+
+            if (plan === 'monthly') {
+                displayPrice.innerHTML = '$49.00<span class="text-body-sm text-on-surface-variant">/mo</span>';
+                footerTotal.innerText = '$49.00';
+                
+                btnMonthly.classList.add('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+                btnMonthly.classList.remove('text-on-surface-variant');
+                
+                btnYearly.classList.remove('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+                btnYearly.classList.add('text-on-surface-variant');
+            } else {
+                displayPrice.innerHTML = '$490.00<span class="text-body-sm text-on-surface-variant">/yr</span>';
+                footerTotal.innerText = '$490.00';
+                
+                btnYearly.classList.add('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+                btnYearly.classList.remove('text-on-surface-variant');
+                
+                btnMonthly.classList.remove('bg-surface-container-lowest', 'shadow-sm', 'text-primary');
+                btnMonthly.classList.add('text-on-surface-variant');
+            }
+        }
+
+        // Micro-interaction for inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.closest('div').classList.add('focus-ring');
+            });
+            input.addEventListener('blur', () => {
+                input.closest('div').classList.remove('focus-ring');
+            });
+        });
+    </script>
+
+
+</body></html>
