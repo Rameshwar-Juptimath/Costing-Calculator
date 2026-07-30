@@ -7,8 +7,8 @@ Run once after migrations:
 Creates:
   - Basic and Pro subscription tiers
   - Plan features for each tier (per spec)
-  - A demo tenant
-  - An admin user linked to the demo tenant on Basic tier
+  - A demo tenant on Basic tier with an admin user
+  - A demo tenant on Pro tier with another admin user
 """
 import asyncio
 
@@ -32,64 +32,141 @@ password_hash = PasswordHash.recommended()
 
 async def seed() -> None:
     async with AsyncSessionLocal() as session:
-        # ── Check if already seeded ────────────────────────────────────────
-        existing = await session.execute(select(SubscriptionTier).limit(1))
-        if existing.scalar_one_or_none() is not None:
-            print("Database already seeded. Skipping.")
-            return
-
         # ── 1. Subscription Tiers ──────────────────────────────────────────
-        basic_tier = SubscriptionTier(name=TierName.basic.value)
-        pro_tier = SubscriptionTier(name=TierName.pro.value)
-        session.add_all([basic_tier, pro_tier])
+        res_basic = await session.execute(
+            select(SubscriptionTier).where(SubscriptionTier.name == TierName.basic.value)
+        )
+        basic_tier = res_basic.scalar_one_or_none()
+        if not basic_tier:
+            basic_tier = SubscriptionTier(name=TierName.basic.value)
+            session.add(basic_tier)
+
+        res_pro = await session.execute(
+            select(SubscriptionTier).where(SubscriptionTier.name == TierName.pro.value)
+        )
+        pro_tier = res_pro.scalar_one_or_none()
+        if not pro_tier:
+            pro_tier = SubscriptionTier(name=TierName.pro.value)
+            session.add(pro_tier)
+
         await session.flush()
 
-        # ── 2. Plan Features (exact spec from brief) ───────────────────────
-        basic_features = PlanFeature(
-            tier_id=basic_tier.id,
-            can_access_direct_cost=True,
-            can_access_overhead_cost=False,
-            can_access_tax=False,
-            can_access_profit_margin=False,
+        # ── 2. Plan Features ───────────────────────────────────────────────
+        res_bf = await session.execute(
+            select(PlanFeature).where(PlanFeature.tier_id == basic_tier.id)
         )
-        pro_features = PlanFeature(
-            tier_id=pro_tier.id,
-            can_access_direct_cost=True,
-            can_access_overhead_cost=True,
-            can_access_tax=True,
-            can_access_profit_margin=True,
-        )
-        session.add_all([basic_features, pro_features])
+        if not res_bf.scalar_one_or_none():
+            session.add(
+                PlanFeature(
+                    tier_id=basic_tier.id,
+                    can_access_direct_cost=True,
+                    can_access_overhead_cost=False,
+                    can_access_tax=False,
+                    can_access_profit_margin=False,
+                )
+            )
 
-        # ── 3. Demo Tenant ─────────────────────────────────────────────────
-        tenant = Tenant(name="Demo Company", slug="demo")
-        session.add(tenant)
-        await session.flush()
-
-        # ── 4. Tenant Subscription (Basic by default) ──────────────────────
-        subscription = TenantSubscription(
-            tenant_id=tenant.id,
-            tier_id=basic_tier.id,
-            is_active=True,
+        res_pf = await session.execute(
+            select(PlanFeature).where(PlanFeature.tier_id == pro_tier.id)
         )
-        session.add(subscription)
+        if not res_pf.scalar_one_or_none():
+            session.add(
+                PlanFeature(
+                    tier_id=pro_tier.id,
+                    can_access_direct_cost=True,
+                    can_access_overhead_cost=True,
+                    can_access_tax=True,
+                    can_access_profit_margin=True,
+                )
+            )
 
-        # ── 5. Admin User ──────────────────────────────────────────────────
-        hashed_password = password_hash.hash(settings.admin_password)
-        admin_user = User(
-            tenant_id=tenant.id,
-            email=settings.admin_email,
-            hashed_password=hashed_password,
-            role=UserRole.admin.value,
-            is_active=True,
+        # ── 3. Basic Demo Tenant ───────────────────────────────────────────
+        res_tenant = await session.execute(
+            select(Tenant).where(Tenant.slug == "demo")
         )
-        session.add(admin_user)
+        tenant = res_tenant.scalar_one_or_none()
+        if not tenant:
+            tenant = Tenant(name="Demo Company", slug="demo")
+            session.add(tenant)
+            await session.flush()
+
+        res_sub = await session.execute(
+            select(TenantSubscription).where(TenantSubscription.tenant_id == tenant.id)
+        )
+        if not res_sub.scalar_one_or_none():
+            session.add(
+                TenantSubscription(
+                    tenant_id=tenant.id,
+                    tier_id=basic_tier.id,
+                    is_active=True,
+                )
+            )
+
+        # ── 4. Basic Admin User ────────────────────────────────────────────
+        res_user = await session.execute(
+            select(User).where(User.email == settings.admin_email)
+        )
+        if not res_user.scalar_one_or_none():
+            hashed_password = password_hash.hash(settings.admin_password)
+            session.add(
+                User(
+                    tenant_id=tenant.id,
+                    email=settings.admin_email,
+                    hashed_password=hashed_password,
+                    role=UserRole.admin.value,
+                    is_active=True,
+                )
+            )
+
+        # ── 5. Pro Demo Tenant ─────────────────────────────────────────────
+        res_pro_tenant = await session.execute(
+            select(Tenant).where(Tenant.slug == "pro-demo")
+        )
+        pro_tenant = res_pro_tenant.scalar_one_or_none()
+        if not pro_tenant:
+            pro_tenant = Tenant(name="Pro Demo Company", slug="pro-demo")
+            session.add(pro_tenant)
+            await session.flush()
+
+        res_pro_sub = await session.execute(
+            select(TenantSubscription).where(TenantSubscription.tenant_id == pro_tenant.id)
+        )
+        if not res_pro_sub.scalar_one_or_none():
+            session.add(
+                TenantSubscription(
+                    tenant_id=pro_tenant.id,
+                    tier_id=pro_tier.id,
+                    is_active=True,
+                )
+            )
+
+        # ── 6. Pro Admin User ──────────────────────────────────────────────
+        pro_admin_email = getattr(settings, "pro_admin_email", "pro_admin@example.com")
+        pro_admin_password = getattr(settings, "pro_admin_password", "ProAdmin@123!")
+
+        res_pro_user = await session.execute(
+            select(User).where(User.email == pro_admin_email)
+        )
+        if not res_pro_user.scalar_one_or_none():
+            pro_hashed_password = password_hash.hash(pro_admin_password)
+            session.add(
+                User(
+                    tenant_id=pro_tenant.id,
+                    email=pro_admin_email,
+                    hashed_password=pro_hashed_password,
+                    role=UserRole.admin.value,
+                    is_active=True,
+                )
+            )
 
         await session.commit()
-        print("✅ Seed completed successfully.")
-        print(f"   Admin email:    {settings.admin_email}")
-        print(f"   Tenant:         {tenant.name} (slug: {tenant.slug})")
-        print(f"   Tier:           Basic")
+        print("✅ Seed process completed successfully.")
+        print(f"   Basic Admin email: {settings.admin_email}")
+        print(f"   Basic Tenant:      {tenant.name} (slug: {tenant.slug})")
+        print(f"   Basic Tier:        Basic")
+        print(f"   Pro Admin email:   {pro_admin_email}")
+        print(f"   Pro Tenant:        {pro_tenant.name} (slug: {pro_tenant.slug})")
+        print(f"   Pro Tier:          Pro")
 
 
 if __name__ == "__main__":

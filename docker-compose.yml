@@ -51,7 +51,10 @@ services:
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      PRO_ADMIN_EMAIL: ${PRO_ADMIN_EMAIL:-pro_admin@example.com}
+      PRO_ADMIN_PASSWORD: ${PRO_ADMIN_PASSWORD:-ProAdmin@123!}
     volumes:
+      - ./backend:/app
       - cad_uploads:/app/uploads
     logging:
       driver: "json-file"

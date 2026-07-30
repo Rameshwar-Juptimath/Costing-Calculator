@@ -104,7 +104,7 @@ pip install -r requirements.txt
 # Run database migrations
 alembic upgrade head
 
-# Seed initial data (Admin user, Tenants, Subscriptions)
+# Seed initial data (Basic & Pro Admin users, Tenants, Subscriptions)
 python seed.py
 
 # Start dev server
@@ -122,6 +122,32 @@ npm install
 npm run dev
 ```
 Open `http://localhost:3000` in your browser.
+
+---
+
+## 🌱 Database Seeding & Provisioned Test Accounts
+
+Initial application data is bootstrapped using `backend/seed.py`. The script is **idempotent**, meaning it can be safely executed on both fresh and existing databases to provision missing subscription tiers, tenants, and admin accounts without creating duplicate records or resetting existing data.
+
+### How to Run Seeding
+
+- **Via Docker Compose**:
+  ```bash
+  docker-compose exec backend python seed.py
+  ```
+
+- **Via Local Python Environment**:
+  ```bash
+  cd backend
+  python seed.py
+  ```
+
+### Provisioned Demo Accounts
+
+| Account Role | Email Address | Password | Tenant / Organization | Tier | Accessible Features |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Basic Admin** | `admin@example.com` | `Admin@123!` | Demo Company (`demo`) | **Basic** | Direct Cost Calculation (Step 1). Overhead & Commercial steps locked with upsell triggers. |
+| **Pro Admin** | `pro_admin@example.com` | `ProAdmin@123!` | Pro Demo Company (`pro-demo`) | **Pro** | Full Access: Direct Cost, Factory Overheads, Taxes, Profit Margins, & Quote PDF Export. |
 
 ---
 

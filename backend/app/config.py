@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     allowed_origins: str = "http://localhost:3000"
     admin_email: str
     admin_password: str
+    pro_admin_email: str = "pro_admin@example.com"
+    pro_admin_password: str = "ProAdmin@123!"
 
     class Config:
         env_file = ".env"
