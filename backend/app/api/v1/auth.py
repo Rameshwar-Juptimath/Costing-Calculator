@@ -114,3 +114,28 @@ async def get_me(
             can_access_profit_margin=features.can_access_profit_margin,
         ),
     )
+
+
+@router.post("/upgrade")
+async def upgrade_tenant(
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Upgrade current user's tenant subscription to Pro tier."""
+    pro_tier_res = await db.execute(
+        select(SubscriptionTier.id).where(SubscriptionTier.name == "Pro")
+    )
+    pro_tier_id = pro_tier_res.scalar()
+    if not pro_tier_id:
+        raise HTTPException(status_code=400, detail="Pro tier configuration missing")
+
+    sub_res = await db.execute(
+        select(TenantSubscription).where(TenantSubscription.tenant_id == current_user["tenant_id"])
+    )
+    sub = sub_res.scalar_one_or_none()
+    if sub:
+        sub.tier_id = pro_tier_id
+        await db.commit()
+
+    return {"status": "success", "tier": "Pro"}
+
