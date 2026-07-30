@@ -19,6 +19,9 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
     assembly.add(model, name="part")
     assembly.save(str(glb_path), exportType="GLTF")
 
+    # Compute surface area if available on CadQuery shape
+    surface_area = shape.Area() if hasattr(shape, "Area") else 0.0
+
     return {
         "geometry": {
             "volume_mm3": round(volume, 4),
@@ -27,7 +30,7 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
                 "y_mm": round(bbox.ylen, 2),
                 "z_mm": round(bbox.zlen, 2),
             },
-            "surface_area_mm2": 0.0,
+            "surface_area_mm2": round(surface_area, 4),
         },
         "glb_path": str(glb_path),
         "glb_id": glb_id,

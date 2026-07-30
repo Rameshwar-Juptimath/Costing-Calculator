@@ -1,11 +1,13 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useState, useRef } from 'react'
 import { useCostingStore } from '@/store/costingStore'
-import { CADViewer } from './CADViewer'
-import { DXF2DViewer } from './DXF2DViewer'
 import { Button } from '@/components/ui/Button'
 import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layers } from 'lucide-react'
+
+const CADViewer = dynamic(() => import('./CADViewer').then(m => m.CADViewer), { ssr: false })
+const DXF2DViewer = dynamic(() => import('./DXF2DViewer').then(m => m.DXF2DViewer), { ssr: false })
 
 export function CADUploadViewer() {
   const { token, meshUrl, geometry, setEstimate } = useCostingStore()
@@ -207,6 +209,13 @@ export function CADUploadViewer() {
               </div>
             </div>
           )}
+
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-emerald-400">
+            <span className="flex items-center space-x-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>Geometry extracted & synced to cost input engine</span>
+            </span>
+          </div>
         </div>
       )}
     </div>

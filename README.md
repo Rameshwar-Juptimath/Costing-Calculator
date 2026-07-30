@@ -13,13 +13,13 @@ A production-grade, multi-tenant SaaS application designed for precision manufac
 
 ## 🌟 Key Features
 
-- **Automated 3D STEP & IGES Geometry Parsing**:
-  - Upload `.step`, `.stp`, `.iges`, or `.stl` files to automatically extract bounding box dimensions ($X \times Y \times Z$), volume ($\text{cm}^3$), surface area ($\text{cm}^2$), face count, and feature complexity.
-  - Automatic background STEP-to-STL mesh conversion for smooth browser rendering.
+- **Automated 3D STEP & 2D CAD Drawing Parsing**:
+  - Upload `.step`, `.stp`, `.dxf`, `.dwg`, or `.dwf` files to automatically extract bounding box dimensions ($X \times Y \times Z$), volume ($\text{mm}^3$), surface area ($\text{mm}^2$), total drawing area, and perimeter.
+  - Automatic background STEP-to-GLB mesh conversion and 2D vector schematic parsing for instant on-screen visualization.
 
-- **Interactive 3D & 2D CAD Viewer**:
-  - Embedded WebGL 3D canvas powered by `@react-three/fiber` & `@react-three/drei` with orbit controls, lighting presets, bounding box overlays, and wireframe toggles.
-  - Integrated 2D DXF vector drawing renderer for engineering blue-print visualization.
+- **Interactive 3D & 2D CAD Estimator Workspace**:
+  - Drag-and-drop CAD upload workspace with live rendering of 3D GLB models (`@react-three/fiber`) or 2D vector drawings (HTML5 Canvas).
+  - Instant auto-syncing of extracted CAD geometry features into primary direct material and manufacturing cost calculations.
 
 - **Dynamic Manufacturing Cost Engine**:
   - **Direct Material Cost**: Stock volume calculation with density matrices (Aluminum 6061, Stainless Steel 316, Titanium, Tool Steel, Plastics) and scrap allowance.

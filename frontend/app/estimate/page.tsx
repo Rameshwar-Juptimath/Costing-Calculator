@@ -1,6 +1,10 @@
 'use client'
-import { CADUploadViewer } from '@/components/viewer/CADUploadViewer'
+import dynamic from 'next/dynamic'
 import { WizardShell } from '@/components/wizard/WizardShell'
+
+const CADUploadViewer = dynamic(() => import('@/components/viewer/CADUploadViewer').then(m => m.CADUploadViewer), {
+  ssr: false,
+})
 
 export default function EstimatePage() {
   return (
