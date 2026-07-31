@@ -72,7 +72,7 @@ cp .env.example .env
 ```
 
 ### 2. Launch all services
-You can run the interactive batch file in the root directory:
+You can run the batch script in the root directory (builds frontend via `npm run build && npm run start` and runs backend):
 ```cmd
 run_app.bat
 ```

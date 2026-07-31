@@ -7,28 +7,16 @@ echo       Industrial Manufacturing Costing Engine - Application Launcher
 echo =========================================================================
 echo.
 
-:: Check if Docker is available and running
-docker info >nul 2>&1
-IF %ERRORLEVEL% EQU 0 (
-    echo [INFO] Docker daemon detected. Starting full stack via Docker Compose...
-    docker compose up --build
-    GOTO :END
-)
+echo [1/2] Starting Backend API (CadQuery + OpenCASCADE) & Database via Docker...
+docker compose up -d backend db
 
-echo [INFO] Running local development servers...
 echo.
-
-echo Launching FastAPI Backend (http://localhost:8000)...
-start "Costing Engine Backend (FastAPI)" cmd /k "cd /d %~dp0backend && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-
-echo Launching Next.js Frontend (http://localhost:3000)...
-start "Costing Engine Frontend (Next.js)" cmd /k "cd /d %~dp0frontend && npm run dev"
+echo [2/2] Building Next.js Frontend (npm run build) and starting server...
+start "Costing Engine Frontend (Next.js)" cmd /k "cd /d %~dp0frontend && npm run build && npm run start"
 
 echo.
 echo =========================================================================
 echo Both services launched successfully!
-echo - Backend API:  http://localhost:8000
+echo - Backend API:  http://localhost:8000 (Swagger docs at /docs)
 echo - Frontend UI:   http://localhost:3000
 echo =========================================================================
-
-:END

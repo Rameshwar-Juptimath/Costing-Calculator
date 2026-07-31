@@ -36,12 +36,13 @@ Costing_calculator/
 ├── README.md                       # Master project overview, features, quickstart & setup documentation
 ├── AGENTS.md                       # AI Agent guidance, project map, security mandates & self-maintenance rules
 ├── docker-compose.yml              # Container orchestration (PostgreSQL 16, FastAPI Backend, Next.js Frontend)
-├── run_app.bat                     # Windows batch launcher script to run backend and frontend concurrently
+├── run_app.bat                     # Windows batch script to build frontend (npm build/start) and launch backend concurrently
 ├── create_frontend.py              # Automated frontend component scaffolding utility
 ├── precision_engineering_interface_DESIGN.md # Detailed UI/UX spec for industrial costing UI
 │
 ├── backend/                        # FastAPI Backend Application
 │   ├── Dockerfile                  # Miniforge3 base image with CadQuery / OpenCASCADE & Python 3.11
+│   ├── requirements.txt            # Python dependencies (FastAPI, SQLAlchemy, CadQuery, Pydantic, etc.)
 │   ├── alembic.ini                 # Database migration configuration
 │   ├── seed.py                     # Initial database seeding script (Basic & Pro Users, Tenants, Subscriptions)
 │   ├── alembic/                    # DB Migration scripts

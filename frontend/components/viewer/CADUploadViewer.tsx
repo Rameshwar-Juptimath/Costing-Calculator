@@ -16,7 +16,7 @@ function sortedDims(geom: any) {
 }
 
 export function CADUploadViewer() {
-  const { token, meshUrl, geometry, setEstimate, stockForm, setStockForm, machiningAllowance } = useCostingStore()
+  const { token, meshUrl, geometry, filename, setEstimate, stockForm, setStockForm, machiningAllowance } = useCostingStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null)
@@ -86,7 +86,7 @@ export function CADUploadViewer() {
           : `${apiUrl}${data.mesh_url}`
         : null
 
-      setEstimate(data.estimate_id, data.geometry, fullMeshUrl)
+      setEstimate(data.estimate_id, data.geometry, fullMeshUrl, data.filename)
       setFileInfo({ name: data.filename, type: data.file_type })
     } catch (err: any) {
       setError(err.message || 'CAD file processing failed.')
@@ -160,7 +160,7 @@ export function CADUploadViewer() {
           <div className="flex items-center justify-between bg-slate-900/80 p-3 rounded-lg border border-slate-800">
             <div className="flex items-center space-x-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-medium text-slate-200">{fileInfo?.name || 'CAD File Loaded'}</span>
+              <span className="text-xs font-medium text-slate-200">{filename || fileInfo?.name || 'CAD File Loaded'}</span>
             </div>
             <Button
               variant="ghost"
