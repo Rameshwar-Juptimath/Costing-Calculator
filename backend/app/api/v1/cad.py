@@ -105,9 +105,13 @@ async def get_mesh(
     current_user: dict = Depends(require_feature("can_access_direct_cost")),
     db: AsyncSession = Depends(get_db),
 ):
-    """Return the binary .glb file for 3D rendering in the frontend."""
+    try:
+        est_uuid = uuid.UUID(estimate_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid estimate ID format.")
+
     result = await db.execute(
-        select(CostEstimate).where(CostEstimate.id == estimate_id)
+        select(CostEstimate).where(CostEstimate.id == est_uuid)
     )
     estimate = result.scalar_one_or_none()
 

@@ -5,6 +5,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+import { useCostingStore } from '@/store/costingStore'
+
 function EmptyViewerPlaceholder() {
   return (
     <div className="w-full h-80 rounded-xl flex items-center justify-center bg-slate-900 border border-slate-700/50 text-slate-500 text-xs">
@@ -14,6 +16,7 @@ function EmptyViewerPlaceholder() {
 }
 
 export function CADViewer({ meshUrl }: { meshUrl: string | null }) {
+  const token = useCostingStore(s => s.token)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,36 +68,55 @@ export function CADViewer({ meshUrl }: { meshUrl: string | null }) {
     const gridHelper = new THREE.GridHelper(100, 20, 0x3b82f6, 0x1e293b)
     scene.add(gridHelper)
 
-    // 5. Load GLB Mesh
-    const loader = new GLTFLoader()
-    loader.load(
-      meshUrl,
-      gltf => {
-        const model = gltf.scene
-
-        // Auto-center and fit model inside viewport
-        const box = new THREE.Box3().setFromObject(model)
-        const center = box.getCenter(new THREE.Vector3())
-        const size = box.getSize(new THREE.Vector3())
-
-        model.position.sub(center)
-
-        const maxDim = Math.max(size.x, size.y, size.z)
-        if (maxDim > 0) {
-          const scale = 30 / maxDim
-          model.scale.set(scale, scale, scale)
+    // 5. Load GLB Mesh with Authorization Header
+    const fetchAndLoadModel = async () => {
+      try {
+        const headers: Record<string, string> = {}
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`
         }
+        const res = await fetch(meshUrl, { headers })
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: Failed to fetch 3D mesh`)
+        }
+        const arrayBuffer = await res.arrayBuffer()
+        const loader = new GLTFLoader()
+        loader.parse(
+          arrayBuffer,
+          '',
+          gltf => {
+            const model = gltf.scene
 
-        scene.add(model)
-        setLoading(false)
-      },
-      undefined,
-      err => {
+            // Auto-center and fit model inside viewport
+            const box = new THREE.Box3().setFromObject(model)
+            const center = box.getCenter(new THREE.Vector3())
+            const size = box.getSize(new THREE.Vector3())
+
+            model.position.sub(center)
+
+            const maxDim = Math.max(size.x, size.y, size.z)
+            if (maxDim > 0) {
+              const scale = 30 / maxDim
+              model.scale.set(scale, scale, scale)
+            }
+
+            scene.add(model)
+            setLoading(false)
+          },
+          err => {
+            console.error('GLTF parse error:', err)
+            setError('Failed to parse 3D GLB model geometry')
+            setLoading(false)
+          }
+        )
+      } catch (err: any) {
         console.error('GLTF load error:', err)
-        setError('Failed to load 3D GLB model')
+        setError(err.message || 'Failed to load 3D GLB model')
         setLoading(false)
       }
-    )
+    }
+
+    fetchAndLoadModel()
 
     // 6. Resize Observer
     const handleResize = () => {
