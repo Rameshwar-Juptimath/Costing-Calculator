@@ -13,6 +13,9 @@ def test_step_volume_extraction():
         assert result["geometry"]["bounding_box"]["x_mm"] == pytest.approx(10.0, abs=0.1)
         assert result["geometry"]["bounding_box"]["y_mm"] == pytest.approx(10.0, abs=0.1)
         assert result["geometry"]["bounding_box"]["z_mm"] == pytest.approx(10.0, abs=0.1)
+        assert "part_forms" in result["geometry"]
+        assert result["geometry"]["part_forms"]["bar_stock"]["diameter_mm"] == pytest.approx(10.0, abs=0.1)
+        assert result["geometry"]["part_forms"]["sheet"]["thickness_mm"] == pytest.approx(10.0, abs=0.1)
 
 def test_step_glb_exported():
     with tempfile.TemporaryDirectory() as tmpdir:

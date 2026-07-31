@@ -13,8 +13,9 @@ A production-grade, multi-tenant SaaS application designed for precision manufac
 
 ## 🌟 Key Features
 
-- **Automated 3D STEP & 2D CAD Drawing Parsing**:
-  - Upload `.step`, `.stp`, `.dxf`, `.dwg`, or `.dwf` files to automatically extract bounding box dimensions ($X \times Y \times Z$), volume ($\text{mm}^3$), surface area ($\text{mm}^2$), total drawing area, and perimeter.
+- **Automated 3D STEP & 2D CAD Drawing Parsing & Part Form Analysis**:
+  - Upload `.step`, `.stp`, `.dxf`, `.dwg`, or `.dwf` files to automatically extract geometry features, volume ($\text{mm}^3$), and surface area ($\text{mm}^2$).
+  - **Part Form Selector & Domain Metrics**: Interactively toggle between **Bar Stock** (cylindrical parts displaying Diameter, Radius, Height/Length, and Cross-Sectional Area) and **Sheet Metal** (displaying Thickness, Width, Length, and Sheet Area) instead of generic bounding boxes.
   - Automatic background STEP-to-GLB mesh conversion and 2D vector schematic parsing for instant on-screen visualization.
 
 - **Interactive 3D & 2D CAD Estimator Workspace**:

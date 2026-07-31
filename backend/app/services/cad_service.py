@@ -22,6 +22,22 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
     # Compute surface area if available on CadQuery shape
     surface_area = shape.Area() if hasattr(shape, "Area") else 0.0
 
+    # Calculate part form dimensions (Bar Stock vs Sheet Metal)
+    x, y, z = bbox.xlen, bbox.ylen, bbox.zlen
+    dims = sorted([x, y, z])
+    thickness = dims[0]
+    width = dims[1]
+    length = dims[2]
+    sheet_area = length * width
+
+    height = dims[2]
+    diameter = (dims[0] + dims[1]) / 2.0
+    radius = diameter / 2.0
+    cross_section_area = math.pi * (radius ** 2)
+
+    aspect_diff = abs(dims[1] - dims[0]) / max(dims[1], 1e-6)
+    recommended_form = "bar_stock" if aspect_diff < 0.20 else "sheet"
+
     return {
         "geometry": {
             "volume_mm3": round(volume, 4),
@@ -31,6 +47,21 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
                 "z_mm": round(bbox.zlen, 2),
             },
             "surface_area_mm2": round(surface_area, 4),
+            "part_forms": {
+                "bar_stock": {
+                    "radius_mm": round(radius, 2),
+                    "diameter_mm": round(diameter, 2),
+                    "height_mm": round(height, 2),
+                    "cross_section_area_mm2": round(cross_section_area, 2),
+                },
+                "sheet": {
+                    "thickness_mm": round(thickness, 2),
+                    "width_mm": round(width, 2),
+                    "length_mm": round(length, 2),
+                    "sheet_area_mm2": round(sheet_area, 2),
+                },
+                "recommended_form": recommended_form,
+            },
         },
         "glb_path": str(glb_path),
         "glb_id": glb_id,

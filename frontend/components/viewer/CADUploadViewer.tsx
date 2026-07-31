@@ -9,8 +9,14 @@ import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layer
 const CADViewer = dynamic(() => import('./CADViewer').then(m => m.CADViewer), { ssr: false })
 const DXF2DViewer = dynamic(() => import('./DXF2DViewer').then(m => m.DXF2DViewer), { ssr: false })
 
+function sortedDims(geom: any) {
+  if (!geom?.bounding_box) return [0, 0, 0]
+  const { x_mm = 0, y_mm = 0, z_mm = 0 } = geom.bounding_box
+  return [x_mm, y_mm, z_mm].sort((a, b) => a - b)
+}
+
 export function CADUploadViewer() {
-  const { token, meshUrl, geometry, setEstimate } = useCostingStore()
+  const { token, meshUrl, geometry, setEstimate, stockForm, setStockForm } = useCostingStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null)
@@ -162,29 +168,107 @@ export function CADUploadViewer() {
         </div>
       )}
 
-      {/* Geometry Metadata Display Cards */}
+      {/* Geometry Metadata Display Cards & Stock Form Selector */}
       {geometry && (
-        <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-3">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Geometry Feature Analysis</p>
+        <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Geometry Feature Analysis</p>
+            
+            {/* Form Selection Toggle */}
+            <div className="flex items-center space-x-1 bg-slate-800/80 p-1 rounded-lg border border-slate-700">
+              <button
+                type="button"
+                onClick={() => setStockForm('bar_stock')}
+                className={`px-2.5 py-1 text-[11px] font-semibold rounded transition-all ${
+                  stockForm === 'bar_stock'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+              >
+                Bar Stock
+              </button>
+              <button
+                type="button"
+                onClick={() => setStockForm('sheet')}
+                className={`px-2.5 py-1 text-[11px] font-semibold rounded transition-all ${
+                  stockForm === 'sheet'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
+                }`}
+              >
+                Sheet Metal
+              </button>
+            </div>
+          </div>
 
           {geometry.volume_mm3 !== undefined && (
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-slate-800/60 p-2.5 rounded-lg">
-                <div className="flex items-center text-slate-400 mb-1">
-                  <Box className="w-3.5 h-3.5 mr-1 text-blue-400" />
-                  <span>Volume</span>
+            <div className="space-y-3">
+              <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between text-xs">
+                <div className="flex items-center text-slate-400">
+                  <Box className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
+                  <span>Part Volume</span>
                 </div>
                 <div className="text-white font-mono font-semibold">{geometry.volume_mm3.toLocaleString()} mm³</div>
               </div>
 
-              {geometry.bounding_box && (
-                <div className="bg-slate-800/60 p-2.5 rounded-lg">
-                  <div className="flex items-center text-slate-400 mb-1">
-                    <Layers className="w-3.5 h-3.5 mr-1 text-indigo-400" />
-                    <span>Bounding Box</span>
+              {stockForm === 'bar_stock' ? (
+                /* Cylindrical Part / Bar Stock Dimensions */
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Diameter (D)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.bar_stock?.diameter_mm ?? 
+                        ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 2).toFixed(2)} mm
+                    </p>
                   </div>
-                  <div className="text-white font-mono font-semibold">
-                    {geometry.bounding_box.x_mm} × {geometry.bounding_box.y_mm} × {geometry.bounding_box.z_mm} mm
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Radius (R)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.bar_stock?.radius_mm ?? 
+                        ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4).toFixed(2)} mm
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Height / Length (H)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.bar_stock?.height_mm ?? sortedDims(geometry)[2].toFixed(2)} mm
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Cross-Section Area</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.bar_stock?.cross_section_area_mm2 ?? 
+                        (Math.PI * Math.pow((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4, 2)).toFixed(2)} mm²
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* Sheet Metal Dimensions */
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Thickness (T)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.sheet?.thickness_mm ?? sortedDims(geometry)[0].toFixed(2)} mm
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Width (W)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.sheet?.width_mm ?? sortedDims(geometry)[1].toFixed(2)} mm
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Length (L)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.sheet?.length_mm ?? sortedDims(geometry)[2].toFixed(2)} mm
+                    </p>
+                  </div>
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                    <p className="text-slate-400 text-[11px]">Sheet Area (L × W)</p>
+                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                      {geometry.part_forms?.sheet?.sheet_area_mm2 ?? 
+                        (sortedDims(geometry)[1] * sortedDims(geometry)[2]).toFixed(2)} mm²
+                    </p>
                   </div>
                 </div>
               )}

@@ -7,10 +7,28 @@ class BoundingBox(BaseModel):
     y_mm: float
     z_mm: float
 
+class BarStockDimensions(BaseModel):
+    radius_mm: float
+    diameter_mm: float
+    height_mm: float
+    cross_section_area_mm2: float
+
+class SheetMetalDimensions(BaseModel):
+    thickness_mm: float
+    width_mm: float
+    length_mm: float
+    sheet_area_mm2: float
+
+class PartForms(BaseModel):
+    bar_stock: BarStockDimensions
+    sheet: SheetMetalDimensions
+    recommended_form: str
+
 class StepGeometry(BaseModel):
     volume_mm3: float
     bounding_box: BoundingBox
     surface_area_mm2: float
+    part_forms: Optional[PartForms] = None
 
 class DXFEntity(BaseModel):
     type: str
