@@ -94,17 +94,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span>Company Settings</span>
           </Link>
 
-          <Link
-            href="/dashboard/upgrade"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
-              isLinkActive('/dashboard/upgrade')
-                ? 'bg-gradient-to-r from-amber-500 to-indigo-600 text-white shadow'
-                : 'text-amber-400 hover:text-amber-300 hover:bg-slate-800'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Upgrade to Pro</span>
-          </Link>
+          {user?.tier?.toLowerCase() !== 'pro' && (
+            <Link
+              href="/dashboard/upgrade"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-xs font-semibold transition-colors ${
+                isLinkActive('/dashboard/upgrade')
+                  ? 'bg-gradient-to-r from-amber-500 to-indigo-600 text-white shadow'
+                  : 'text-amber-400 hover:text-amber-300 hover:bg-slate-800'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Upgrade to Pro</span>
+            </Link>
+          )}
         </nav>
 
         {/* User Footer Profile */}
