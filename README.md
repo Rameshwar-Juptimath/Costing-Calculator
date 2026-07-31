@@ -16,6 +16,7 @@ A production-grade, multi-tenant SaaS application designed for precision manufac
 - **Automated 3D STEP & 2D CAD Drawing Parsing & Part Form Analysis**:
   - Upload `.step`, `.stp`, `.dxf`, `.dwg`, or `.dwf` files to automatically extract geometry features, volume ($\text{mm}^3$), and surface area ($\text{mm}^2$).
   - **Part Form Selector & Domain Metrics**: Interactively toggle between **Bar Stock** (cylindrical parts displaying Diameter, Radius, Height/Length, and Cross-Sectional Area) and **Sheet Metal** (displaying Thickness, Width, Length, and Sheet Area) instead of generic bounding boxes.
+  - **Machining Allowance Integration**: Basic and Pro tier users can configure Radius and Height raw stock allowances in Company Settings, which automatically factor into cylindrical **Part Volume** calculations ($V_{\text{raw}} = \pi \times (R + \Delta R)^2 \times (H + \Delta H)$).
   - Automatic background STEP-to-GLB mesh conversion and 2D vector schematic parsing for instant on-screen visualization.
 
 - **Interactive 3D & 2D CAD Estimator Workspace**:
@@ -71,6 +72,11 @@ cp .env.example .env
 ```
 
 ### 2. Launch all services
+You can run the interactive batch file in the root directory:
+```cmd
+run_app.bat
+```
+Or use Docker Compose directly:
 ```bash
 docker-compose up --build
 ```

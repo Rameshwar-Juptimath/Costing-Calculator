@@ -2,14 +2,15 @@
 import React, { useState } from 'react'
 import { useCostingStore } from '@/store/costingStore'
 import { CompanyOverheadsForm, CompanyOverheadsValues } from '@/components/company-overheads-form'
+import { MachiningAllowanceForm } from '@/components/machining-allowance-form'
 import { BasicTierUpsellCard } from '@/components/basic-tier-upsell-card'
-import { User, CreditCard, Factory, Percent, ChevronRight } from 'lucide-react'
+import { User, CreditCard, Factory, Percent, Cylinder, ChevronRight } from 'lucide-react'
 
 export default function CompanySettingsPage() {
   const user = useCostingStore(s => s.user)
   const isBasicTier = user?.tier !== 'Pro'
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'overheads' | 'commercials'>('overheads')
+  const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'overheads' | 'commercials' | 'allowances'>('overheads')
 
   const handleSaveOverheads = async (values: CompanyOverheadsValues) => {
     try {
@@ -73,6 +74,23 @@ export default function CompanySettingsPage() {
           <li>
             <button
               type="button"
+              onClick={() => setActiveTab('allowances')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold transition-colors ${
+                activeTab === 'allowances'
+                  ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <Cylinder className="w-4 h-4" />
+                <span>Machining Allowances</span>
+              </span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
               onClick={() => setActiveTab('overheads')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold transition-colors ${
                 activeTab === 'overheads'
@@ -109,7 +127,7 @@ export default function CompanySettingsPage() {
         <div className="mt-auto p-4 bg-indigo-50/60 rounded-lg border border-indigo-100 space-y-1">
           <h4 className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">Pro Tip</h4>
           <p className="text-xs text-slate-600">
-            Changes to overheads affect all future estimates immediately.
+            Allowances apply to stock calculation for all quotes.
           </p>
         </div>
       </nav>
@@ -140,6 +158,12 @@ export default function CompanySettingsPage() {
           </div>
         )}
 
+        {activeTab === 'allowances' && (
+          <div>
+            <MachiningAllowanceForm />
+          </div>
+        )}
+
         {(activeTab === 'overheads' || activeTab === 'commercials') && (
           <div className="relative">
             <CompanyOverheadsForm
@@ -147,7 +171,7 @@ export default function CompanySettingsPage() {
               onSave={handleSaveOverheads}
             />
 
-            {/* Basic Tier Gated Upsell Overlay (Verbatim matching reference mockup) */}
+            {/* Basic Tier Gated Upsell Overlay */}
             {isBasicTier && <BasicTierUpsellCard />}
           </div>
         )}

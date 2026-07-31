@@ -17,6 +17,11 @@ export interface AuthUser {
   tier: 'Basic' | 'Pro'
 }
 
+export interface MachiningAllowance {
+  bar_stock_radius: number
+  bar_stock_height: number
+}
+
 interface CostingStore {
   user: AuthUser | null
   features: UserFeatures | null
@@ -27,12 +32,14 @@ interface CostingStore {
   costResult: any | null
   currentStep: 1 | 2 | 3
   stockForm: 'bar_stock' | 'sheet'
+  machiningAllowance: MachiningAllowance
   setUser: (user: AuthUser, features: UserFeatures) => void
   setToken: (token: string) => void
   setEstimate: (id: string, geometry: any, meshUrl: string | null) => void
   setCostResult: (result: any) => void
   setStep: (step: 1 | 2 | 3) => void
   setStockForm: (stockForm: 'bar_stock' | 'sheet') => void
+  setMachiningAllowance: (allowance: MachiningAllowance) => void
   logout: () => void
 }
 
@@ -41,6 +48,7 @@ export const useCostingStore = create<CostingStore>()(persist(
     user: null, features: null, token: null,
     estimateId: null, geometry: null, meshUrl: null,
     costResult: null, currentStep: 1, stockForm: 'bar_stock',
+    machiningAllowance: { bar_stock_radius: 1.0, bar_stock_height: 3.0 },
     setUser: (user, features) => set({ user, features }),
     setToken: (token) => set({ token }),
     setEstimate: (estimateId, geometry, meshUrl) => {
@@ -50,7 +58,8 @@ export const useCostingStore = create<CostingStore>()(persist(
     setCostResult: (costResult) => set({ costResult }),
     setStep: (currentStep) => set({ currentStep }),
     setStockForm: (stockForm) => set({ stockForm }),
-    logout: () => set({ user: null, features: null, token: null, estimateId: null, geometry: null, meshUrl: null, costResult: null, currentStep: 1, stockForm: 'bar_stock' }),
+    setMachiningAllowance: (machiningAllowance) => set({ machiningAllowance }),
+    logout: () => set({ user: null, features: null, token: null, estimateId: null, geometry: null, meshUrl: null, costResult: null, currentStep: 1, stockForm: 'bar_stock', machiningAllowance: { bar_stock_radius: 1.0, bar_stock_height: 3.0 } }),
   }),
   { name: 'costing-store' }
 ))

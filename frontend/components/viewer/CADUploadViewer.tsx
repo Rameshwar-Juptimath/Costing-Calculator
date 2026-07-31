@@ -16,11 +16,32 @@ function sortedDims(geom: any) {
 }
 
 export function CADUploadViewer() {
-  const { token, meshUrl, geometry, setEstimate, stockForm, setStockForm } = useCostingStore()
+  const { token, meshUrl, geometry, setEstimate, stockForm, setStockForm, machiningAllowance } = useCostingStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+
+  // Calculate Part Volume (factoring in machining allowances for Bar Stock)
+  const getDisplayVolume = () => {
+    if (!geometry) return 0
+    if (stockForm === 'bar_stock') {
+      const baseRadius = geometry.part_forms?.bar_stock?.radius_mm ?? 
+        ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4)
+      const baseHeight = geometry.part_forms?.bar_stock?.height_mm ?? sortedDims(geometry)[2]
+
+      const radiusAllowance = machiningAllowance?.bar_stock_radius ?? 
+        ((machiningAllowance as any)?.bar_stock_diameter ? (machiningAllowance as any).bar_stock_diameter / 2 : 1.0)
+      const heightAllowance = machiningAllowance?.bar_stock_height ?? 3.0
+
+      const rawRadius = baseRadius + radiusAllowance
+      const rawHeight = baseHeight + heightAllowance
+
+      const rawVolume = Math.PI * Math.pow(rawRadius, 2) * rawHeight
+      return Math.round(rawVolume)
+    }
+    return Math.round(geometry.volume_mm3 ?? 0)
+  }
 
   const handleFileUpload = async (file: File) => {
     if (!file) return
@@ -206,43 +227,72 @@ export function CADUploadViewer() {
               <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between text-xs">
                 <div className="flex items-center text-slate-400">
                   <Box className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
-                  <span>Part Volume</span>
+                  <span>
+                    Part Volume {stockForm === 'bar_stock' ? `(incl. +${machiningAllowance?.bar_stock_radius ?? 1}mm R / +${machiningAllowance?.bar_stock_height ?? 3}mm H allowance)` : ''}
+                  </span>
                 </div>
-                <div className="text-white font-mono font-semibold">{geometry.volume_mm3.toLocaleString()} mm³</div>
+                <div className="text-white font-mono font-semibold">{getDisplayVolume().toLocaleString()} mm³</div>
               </div>
 
-              {stockForm === 'bar_stock' ? (
-                /* Cylindrical Part / Bar Stock Dimensions */
-                <div className="grid grid-cols-2 gap-2.5 text-xs">
-                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
-                    <p className="text-slate-400 text-[11px]">Diameter (D)</p>
-                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
-                      {geometry.part_forms?.bar_stock?.diameter_mm ?? 
-                        ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 2).toFixed(2)} mm
-                    </p>
+              {stockForm === 'bar_stock' ? (() => {
+                const baseRadius = geometry.part_forms?.bar_stock?.radius_mm ?? 
+                  ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4)
+                const radiusAllowance = machiningAllowance?.bar_stock_radius ?? 
+                  ((machiningAllowance as any)?.bar_stock_diameter ? (machiningAllowance as any).bar_stock_diameter / 2 : 1.0)
+                const rawRadius = baseRadius + radiusAllowance
+                const rawDiameter = rawRadius * 2.0
+
+                const baseHeight = geometry.part_forms?.bar_stock?.height_mm ?? sortedDims(geometry)[2]
+                const heightAllowance = machiningAllowance?.bar_stock_height ?? 3.0
+                const rawHeight = baseHeight + heightAllowance
+
+                const rawArea = Math.PI * Math.pow(rawRadius, 2)
+
+                return (
+                  /* Cylindrical Part / Bar Stock Dimensions (Drawing + Machining Allowance) */
+                  <div className="grid grid-cols-2 gap-2.5 text-xs">
+                    <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400 text-[11px]">Radius (R)</span>
+                        <span className="text-[10px] text-blue-400 font-mono">Drawing: {baseRadius.toFixed(1)} + {radiusAllowance.toFixed(1)}mm</span>
+                      </div>
+                      <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                        {rawRadius.toFixed(2)} mm
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400 text-[11px]">Diameter (D)</span>
+                        <span className="text-[10px] text-blue-400 font-mono">Drawing: {(baseRadius * 2).toFixed(1)} + {(radiusAllowance * 2).toFixed(1)}mm</span>
+                      </div>
+                      <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                        {rawDiameter.toFixed(2)} mm
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400 text-[11px]">Height / Length (H)</span>
+                        <span className="text-[10px] text-blue-400 font-mono">Drawing: {baseHeight.toFixed(1)} + {heightAllowance.toFixed(1)}mm</span>
+                      </div>
+                      <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                        {rawHeight.toFixed(2)} mm
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400 text-[11px]">Cross-Section Area</span>
+                        <span className="text-[10px] text-slate-400 font-mono">π × R²</span>
+                      </div>
+                      <p className="text-white font-mono font-semibold text-sm mt-0.5">
+                        {rawArea.toFixed(2)} mm²
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
-                    <p className="text-slate-400 text-[11px]">Radius (R)</p>
-                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
-                      {geometry.part_forms?.bar_stock?.radius_mm ?? 
-                        ((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4).toFixed(2)} mm
-                    </p>
-                  </div>
-                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
-                    <p className="text-slate-400 text-[11px]">Height / Length (H)</p>
-                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
-                      {geometry.part_forms?.bar_stock?.height_mm ?? sortedDims(geometry)[2].toFixed(2)} mm
-                    </p>
-                  </div>
-                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
-                    <p className="text-slate-400 text-[11px]">Cross-Section Area</p>
-                    <p className="text-white font-mono font-semibold text-sm mt-0.5">
-                      {geometry.part_forms?.bar_stock?.cross_section_area_mm2 ?? 
-                        (Math.PI * Math.pow((sortedDims(geometry)[0] + sortedDims(geometry)[1]) / 4, 2)).toFixed(2)} mm²
-                    </p>
-                  </div>
-                </div>
-              ) : (
+                )
+              })() : (
                 /* Sheet Metal Dimensions */
                 <div className="grid grid-cols-2 gap-2.5 text-xs">
                   <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60">
