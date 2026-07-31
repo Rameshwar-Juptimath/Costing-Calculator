@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { useState, useRef } from 'react'
 import { useCostingStore } from '@/store/costingStore'
 import { Button } from '@/components/ui/Button'
-import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layers } from 'lucide-react'
+import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layers, Scale } from 'lucide-react'
 
 const CADViewer = dynamic(() => import('./CADViewer').then(m => m.CADViewer), { ssr: false })
 const DXF2DViewer = dynamic(() => import('./DXF2DViewer').then(m => m.DXF2DViewer), { ssr: false })
@@ -222,17 +222,47 @@ export function CADUploadViewer() {
             </div>
           </div>
 
-          {geometry.volume_mm3 !== undefined && (
-            <div className="space-y-3">
-              <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between text-xs">
-                <div className="flex items-center text-slate-400">
-                  <Box className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
-                  <span>
-                    Part Volume {stockForm === 'bar_stock' ? `(incl. +${machiningAllowance?.bar_stock_radius ?? 1}mm R / +${machiningAllowance?.bar_stock_height ?? 3}mm H allowance)` : ''}
-                  </span>
+          {geometry.volume_mm3 !== undefined && (() => {
+            const rawVol = getDisplayVolume()
+            const density = 7.85
+            const rawMassKg = (rawVol * density) / 1000000
+            const rawMassG = (rawVol * density) / 1000
+            const netMassKg = ((geometry.volume_mm3 ?? 0) * density) / 1000000
+
+            return (
+              <div className="space-y-3">
+                {/* Volume & Mass Cards */}
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex flex-col justify-between">
+                    <div className="flex items-center text-slate-400">
+                      <Box className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
+                      <span>Part Volume</span>
+                    </div>
+                    <div className="text-white font-mono font-semibold text-sm mt-1">
+                      {rawVol.toLocaleString()} mm³
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-mono mt-0.5">
+                      Net CAD: {Math.round(geometry.volume_mm3 ?? 0).toLocaleString()} mm³
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex flex-col justify-between">
+                    <div className="flex items-center justify-between text-slate-400">
+                      <div className="flex items-center">
+                        <Scale className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+                        <span>Estimated Mass</span>
+                      </div>
+                      <span className="text-[9px] text-slate-500 font-mono">7.85 g/cm³</span>
+                    </div>
+                    <div className="text-white font-mono font-semibold text-sm mt-1">
+                      {rawMassKg.toFixed(3)} kg
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 flex justify-between">
+                      <span>{rawMassG.toFixed(1)} g</span>
+                      <span>Net: {netMassKg.toFixed(3)} kg</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-white font-mono font-semibold">{getDisplayVolume().toLocaleString()} mm³</div>
-              </div>
 
               {stockForm === 'bar_stock' ? (() => {
                 const baseRadius = geometry.part_forms?.bar_stock?.radius_mm ?? 
@@ -323,7 +353,8 @@ export function CADUploadViewer() {
                 </div>
               )}
             </div>
-          )}
+            )
+          })()}
 
           {geometry.total_area_mm2 !== undefined && (
             <div className="grid grid-cols-2 gap-3 text-xs">

@@ -38,9 +38,16 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
     aspect_diff = abs(dims[1] - dims[0]) / max(dims[1], 1e-6)
     recommended_form = "bar_stock" if aspect_diff < 0.20 else "sheet"
 
+    # Estimated Mass (using default steel density 7.85 g/cm³)
+    default_density_g_cm3 = 7.85
+    estimated_mass_g = round((volume / 1000.0) * default_density_g_cm3, 2)
+    estimated_mass_kg = round(estimated_mass_g / 1000.0, 4)
+
     return {
         "geometry": {
             "volume_mm3": round(volume, 4),
+            "estimated_mass_kg": estimated_mass_kg,
+            "estimated_mass_g": estimated_mass_g,
             "bounding_box": {
                 "x_mm": round(bbox.xlen, 2),
                 "y_mm": round(bbox.ylen, 2),

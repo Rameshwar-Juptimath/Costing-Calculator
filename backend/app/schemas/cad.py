@@ -26,6 +26,8 @@ class PartForms(BaseModel):
 
 class StepGeometry(BaseModel):
     volume_mm3: float
+    estimated_mass_kg: Optional[float] = None
+    estimated_mass_g: Optional[float] = None
     bounding_box: BoundingBox
     surface_area_mm2: float
     part_forms: Optional[PartForms] = None
