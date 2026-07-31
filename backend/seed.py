@@ -31,6 +31,10 @@ password_hash = PasswordHash.recommended()
 
 
 async def seed() -> None:
+    from app.database import engine, Base
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     async with AsyncSessionLocal() as session:
         # ── 1. Subscription Tiers ──────────────────────────────────────────
         res_basic = await session.execute(
@@ -158,6 +162,26 @@ async def seed() -> None:
                     is_active=True,
                 )
             )
+
+        # ── 7. Default Manufacturing Materials ─────────────────────────────
+        DEFAULT_MATERIALS = [
+            ("Aluminum 6061", 2.70),
+            ("Mild Steel", 7.85),
+            ("Stainless Steel 304", 8.00),
+            ("Stainless Steel 316", 8.00),
+            ("Brass C360", 8.50),
+            ("Copper", 8.96),
+            ("Titanium Grade 5", 4.43),
+            ("Cast Iron", 7.20),
+            ("Delrin (POM)", 1.41),
+        ]
+        from app.models.material import Material
+        for name, density in DEFAULT_MATERIALS:
+            res_mat = await session.execute(
+                select(Material).where(Material.name == name)
+            )
+            if not res_mat.scalar_one_or_none():
+                session.add(Material(name=name, density_g_cm3=density))
 
         await session.commit()
         print("✅ Seed process completed successfully.")

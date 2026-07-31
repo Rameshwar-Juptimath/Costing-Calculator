@@ -66,3 +66,26 @@ async def list_estimates(
         ],
         total=len(items)
     )
+
+@router.get("/materials")
+async def list_materials(db: AsyncSession = Depends(get_db)):
+    from app.models.material import Material
+    try:
+        result = await db.execute(select(Material).order_by(Material.name.asc()))
+        materials = result.scalars().all()
+        if materials:
+            return [{"id": str(m.id), "name": m.name, "density_g_cm3": m.density_g_cm3} for m in materials]
+    except Exception:
+        pass
+
+    return [
+        {"name": "Aluminum 6061", "density_g_cm3": 2.70},
+        {"name": "Mild Steel", "density_g_cm3": 7.85},
+        {"name": "Stainless Steel 304", "density_g_cm3": 8.00},
+        {"name": "Stainless Steel 316", "density_g_cm3": 8.00},
+        {"name": "Brass C360", "density_g_cm3": 8.50},
+        {"name": "Copper", "density_g_cm3": 8.96},
+        {"name": "Titanium Grade 5", "density_g_cm3": 4.43},
+        {"name": "Cast Iron", "density_g_cm3": 7.20},
+        {"name": "Delrin (POM)", "density_g_cm3": 1.41},
+    ]

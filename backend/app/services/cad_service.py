@@ -1,9 +1,45 @@
-import cadquery as cq
-import ezdxf
-import math
-from fastapi.concurrency import run_in_threadpool
-from pathlib import Path
-import uuid
+import re
+
+
+def _extract_step_material(file_path: str) -> str | None:
+    """Extract material designation from STEP file ISO 10303-21 header and entities."""
+    try:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read(500000)
+
+        # 1. MATERIAL_DESIGNATION ('Material Name', ...)
+        mat_matches = re.findall(
+            r"MATERIAL_DESIGNATION\s*\(\s*'([^']+)'", content, re.IGNORECASE
+        )
+        for mat in mat_matches:
+            cleaned = mat.strip()
+            if cleaned and cleaned.lower() not in ("none", "unspecified", "unknown", "default"):
+                return cleaned
+
+        # 2. DESCRIPTIVE_REPRESENTATION_ITEM ('material...', 'Material Name')
+        desc_matches = re.findall(
+            r"DESCRIPTIVE_REPRESENTATION_ITEM\s*\(\s*'[^']*material[^']*'\s*,\s*'([^']+)'",
+            content,
+            re.IGNORECASE,
+        )
+        for desc in desc_matches:
+            cleaned = desc.strip()
+            if cleaned and cleaned.lower() not in ("none", "unspecified", "unknown"):
+                return cleaned
+
+        # 3. Known alloy keyword matching in entity attributes
+        keywords = [
+            "ALUMINUM 6061", "AL 6061", "AL 7075", "AL 5052", "ALUMINUM",
+            "STAINLESS STEEL 304", "STAINLESS STEEL 316", "STAINLESS STEEL",
+            "MILD STEEL", "STEEL 4140", "STEEL 1018", "STEEL",
+            "BRASS C360", "BRASS", "COPPER", "TITANIUM", "DELRIN", "NYLON", "PEEK"
+        ]
+        for kw in keywords:
+            if re.search(r"\b" + re.escape(kw) + r"\b", content, re.IGNORECASE):
+                return kw
+    except Exception:
+        pass
+    return None
 
 
 def _process_step_sync(file_path: str, output_dir: str) -> dict:
@@ -11,6 +47,9 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
     shape = model.val()
     volume = shape.Volume()
     bbox = shape.BoundingBox()
+
+    # Extract STEP material metadata if specified
+    material_name = _extract_step_material(file_path)
 
     # Export to GLTF/GLB via Assembly (specify exportType="GLTF")
     glb_id = str(uuid.uuid4())
@@ -48,6 +87,7 @@ def _process_step_sync(file_path: str, output_dir: str) -> dict:
             "volume_mm3": round(volume, 4),
             "estimated_mass_kg": estimated_mass_kg,
             "estimated_mass_g": estimated_mass_g,
+            "material_name": material_name,
             "bounding_box": {
                 "x_mm": round(bbox.xlen, 2),
                 "y_mm": round(bbox.ylen, 2),

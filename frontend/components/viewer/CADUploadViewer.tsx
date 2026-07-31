@@ -15,8 +15,24 @@ function sortedDims(geom: any) {
   return [x_mm, y_mm, z_mm].sort((a, b) => a - b)
 }
 
+const MATERIALS_LIST = [
+  { name: 'Aluminum 6061', density: 2.70 },
+  { name: 'Mild Steel', density: 7.85 },
+  { name: 'Stainless Steel 304', density: 8.00 },
+  { name: 'Stainless Steel 316', density: 8.00 },
+  { name: 'Brass C360', density: 8.50 },
+  { name: 'Copper', density: 8.96 },
+  { name: 'Titanium Grade 5', density: 4.43 },
+  { name: 'Cast Iron', density: 7.20 },
+  { name: 'Delrin (POM)', density: 1.41 },
+]
+
 export function CADUploadViewer() {
-  const { token, meshUrl, geometry, filename, setEstimate, stockForm, setStockForm, machiningAllowance } = useCostingStore()
+  const { 
+    token, meshUrl, geometry, filename, setEstimate, 
+    stockForm, setStockForm, machiningAllowance,
+    selectedMaterial, selectedDensity, setSelectedMaterial 
+  } = useCostingStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null)
@@ -224,10 +240,10 @@ export function CADUploadViewer() {
 
           {geometry.volume_mm3 !== undefined && (() => {
             const rawVol = getDisplayVolume()
-            const density = 7.85
-            const rawMassKg = (rawVol * density) / 1000000
-            const rawMassG = (rawVol * density) / 1000
-            const netMassKg = ((geometry.volume_mm3 ?? 0) * density) / 1000000
+            const activeDensity = selectedDensity || 7.85
+            const rawMassKg = (rawVol * activeDensity) / 1000000
+            const rawMassG = (rawVol * activeDensity) / 1000
+            const netMassKg = ((geometry.volume_mm3 ?? 0) * activeDensity) / 1000000
 
             return (
               <div className="space-y-3">
@@ -252,7 +268,9 @@ export function CADUploadViewer() {
                         <Scale className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
                         <span>Estimated Mass</span>
                       </div>
-                      <span className="text-[9px] text-slate-500 font-mono">7.85 g/cm³</span>
+                      <span className="text-[9px] text-emerald-400 font-mono font-medium">
+                        ρ {activeDensity.toFixed(2)} g/cm³
+                      </span>
                     </div>
                     <div className="text-white font-mono font-semibold text-sm mt-1">
                       {rawMassKg.toFixed(3)} kg
@@ -261,6 +279,37 @@ export function CADUploadViewer() {
                       <span>{rawMassG.toFixed(1)} g</span>
                       <span>Net: {netMassKg.toFixed(3)} kg</span>
                     </div>
+                  </div>
+                </div>
+
+                {/* Material Specification Banner & Interactive Dropdown */}
+                <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between text-xs">
+                  <div className="flex items-center space-x-2 text-slate-400">
+                    <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Material Specification</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {geometry.material_name ? (
+                      <span className="text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/50 font-mono text-[10px]">
+                        CAD: {geometry.material_name}
+                      </span>
+                    ) : null}
+                    <select
+                      value={selectedMaterial}
+                      onChange={(e) => {
+                        const mat = MATERIALS_LIST.find(m => m.name === e.target.value)
+                        if (mat) {
+                          setSelectedMaterial(mat.name, mat.density)
+                        }
+                      }}
+                      className="bg-slate-900 text-cyan-400 font-mono text-xs border border-cyan-800/60 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+                    >
+                      {MATERIALS_LIST.map((mat) => (
+                        <option key={mat.name} value={mat.name} className="bg-slate-900 text-slate-200">
+                          {mat.name} ({mat.density.toFixed(2)} g/cm³)
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
