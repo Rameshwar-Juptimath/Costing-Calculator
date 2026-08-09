@@ -166,11 +166,12 @@ Initial application data is bootstrapped using `backend/seed.py`. The script is 
 
 ### Backend Unit & Service Tests (Pytest)
 ```bash
-cd backend
-pytest -v
+# Inside Docker (Recommended):
+docker compose exec backend pytest -v
 
-# Or via Docker:
-docker-compose exec backend pytest -v
+# Or on host:
+cd backend
+python -m pytest tests/test_cost_engine.py tests/test_process_routing.py -v
 ```
 
 ### Frontend End-to-End Tests (Playwright)

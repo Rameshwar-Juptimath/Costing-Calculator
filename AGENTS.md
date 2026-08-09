@@ -232,24 +232,40 @@ All modifications MUST strictly maintain the following security practices:
 
 Before declaring any feature complete or committing changes, you MUST run the test suites to ensure zero regressions.
 
-### A. Backend Unit & Integration Tests (Pytest)
+### Host Environment & Python Executable Reference
+> **NOTE FOR AI AGENTS RUNNING PYTHON ON HOST**:
+> - **Primary Python Path**: `C:\Python313\python.exe` (accessible directly via `python` in pwsh/cmd).
+> - **Executing Scripts / Seeding on Host**:
+>   ```powershell
+>   cd backend
+>   python seed.py
+>   ```
+> - **Running Unit Tests Directly via Python on Host**:
+>   ```powershell
+>   cd backend
+>   python -c "import sys; sys.path.insert(0, '.'); from app.models.subscription import PlanFeature; from tests.test_cost_engine import *; from tests.test_process_routing import *; pro = PlanFeature(can_access_direct_cost=True, can_access_overhead_cost=True, can_access_tax=True, can_access_profit_margin=True); test_pro_tier_full_calculation(pro); test_process_routing_single_machine_amortization(pro); test_process_routing_batch_size_scaling(pro); test_process_routing_multi_machine_sequenced(pro); print('ALL TESTS PASSED!')"
+>   ```
+
+### A. Backend Unit & Integration Tests (Pytest / Docker)
 Run pytest inside the backend container or local virtual environment:
 
 ```bash
-# Running all backend tests
+# Running pytest inside Docker Compose setup (Recommended)
+docker compose exec backend pytest -v
+
+# Running specific test files inside Docker
+docker compose exec backend pytest tests/test_cost_engine.py
+docker compose exec backend pytest tests/test_process_routing.py
+docker compose exec backend pytest tests/test_cad_service.py
+
+# Running on host (if pytest is installed in local python environment)
 cd backend
-pytest
-
-# Running specific test files
-pytest tests/test_cost_engine.py
-pytest tests/test_cad_service.py
-
-# Running pytest inside Docker Compose setup
-docker-compose exec backend pytest -v
+python -m pytest tests/test_cost_engine.py tests/test_process_routing.py -v
 ```
 
 **Key Backend Test Files**:
 - `backend/tests/test_cost_engine.py`: Validates calculation formulas (machining hours, material volume cost, scrap rate, overhead multipliers, profit margins).
+- `backend/tests/test_process_routing.py`: Validates sequenced multi-machine operations, cycle time vs. setup time, and batch size amortization.
 - `backend/tests/test_cad_service.py`: Validates CAD file parsing, volume extraction, and mesh export functions.
 
 ### B. Frontend End-to-End Tests (Playwright)
