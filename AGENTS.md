@@ -13,15 +13,16 @@ When tasked with modifying or adding a feature, immediately jump to the relevant
 | User Request / Task | Target File(s) to Modify |
 | :--- | :--- |
 | **CAD Analysis & Part Form Selection** | [backend/app/services/cad_service.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/services/cad_service.py), [backend/app/schemas/cad.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/schemas/cad.py), [backend/app/api/v1/cad.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/api/v1/cad.py) (.step, .stp, .dxf upload, bar stock vs sheet metal form metrics & GLB export) |
+| **Process Routing & Machine Library** | [backend/app/models/machine_profile.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/machine_profile.py), [backend/app/schemas/machine.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/schemas/machine.py), [backend/app/api/v1/machines.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/api/v1/machines.py), [frontend/components/work-centers-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/work-centers-form.tsx) |
 | **Manufacturing Cost Calculation Logic** | [backend/app/services/cost_engine.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/services/cost_engine.py), [backend/app/api/v1/costing.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/api/v1/costing.py) |
-| **Frontend State & Calculation Engine** | [frontend/store/costingStore.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/store/costingStore.ts) |
+| **Frontend State & Calculation Engine** | [frontend/store/costingStore.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/store/costingStore.ts) (Stores `routingSteps`, `batchSize`, `machines`, `quoteRef` unique ID state & auto-update actions) |
 | **Estimator Workspace & CAD Upload Renderers** | [frontend/app/dashboard/page.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/app/dashboard/page.tsx), [frontend/components/viewer/CADUploadViewer.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/viewer/CADUploadViewer.tsx), [frontend/components/viewer/DXF2DViewer.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/viewer/DXF2DViewer.tsx), [frontend/components/viewer/CADViewer.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/viewer/CADViewer.tsx) |
-| **Estimator Cost Input & Overheads Forms** | [frontend/components/cost-input-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/cost-input-form.tsx), [frontend/components/company-overheads-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/company-overheads-form.tsx), [frontend/components/machining-allowance-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/machining-allowance-form.tsx) |
+| **Estimator Cost Input & Overheads Forms** | [frontend/components/cost-input-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/cost-input-form.tsx) (Dynamic Process Routing Builder table & batch size setup amortization), [frontend/components/company-overheads-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/company-overheads-form.tsx), [frontend/components/machining-allowance-form.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/machining-allowance-form.tsx) |
 | **Multi-Step Costing Wizard** | [frontend/components/wizard/WizardShell.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/wizard/WizardShell.tsx), `Step1DirectCost.tsx`, `Step2Overhead.tsx`, `Step3Commercials.tsx` |
 | **Results Display & PDF Export** | [frontend/components/ResultsPanel.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/ResultsPanel.tsx), [frontend/components/pdf-export-modal.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/pdf-export-modal.tsx) |
 | **Authentication & RBAC Gating** | [backend/app/api/v1/auth.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/api/v1/auth.py), [frontend/components/FeatureGate.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/components/FeatureGate.tsx), [frontend/middleware.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/middleware.ts), [frontend/app/dashboard/layout.tsx](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/app/dashboard/layout.tsx) |
-| **Database Models & Alembic Migrations** | `backend/app/models/` ([cost_estimate.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/cost_estimate.py), [user.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/user.py), [tenant.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/tenant.py), [subscription.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/subscription.py)), `backend/alembic/`, [backend/seed.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/seed.py) |
-| **Backend Unit & Service Tests** | [backend/tests/test_cost_engine.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/tests/test_cost_engine.py), [backend/tests/test_cad_service.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/tests/test_cad_service.py) |
+| **Database Models & Alembic Migrations** | `backend/app/models/` ([machine_profile.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/machine_profile.py), [cost_estimate.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/cost_estimate.py), [user.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/user.py), [tenant.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/tenant.py), [subscription.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/app/models/subscription.py)), `backend/alembic/`, [backend/seed.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/seed.py) |
+| **Backend Unit & Service Tests** | [backend/tests/test_cost_engine.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/tests/test_cost_engine.py), [backend/tests/test_process_routing.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/tests/test_process_routing.py), [backend/tests/test_cad_service.py](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/backend/tests/test_cad_service.py) |
 | **Frontend E2E Specs (Playwright)** | [frontend/e2e/estimator-calc.spec.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/e2e/estimator-calc.spec.ts), [frontend/e2e/rbac.spec.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/e2e/rbac.spec.ts), [frontend/e2e/rbac-upsell.spec.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/e2e/rbac-upsell.spec.ts) |
 | **Global Styling & UI Design System** | [frontend/app/globals.css](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/app/globals.css), [frontend/tailwind.config.ts](file:///d:/Work/My_Work/freelance_projects/Costing_calculator/frontend/tailwind.config.ts), `frontend/components/ui/` |
 
@@ -44,10 +45,10 @@ Costing_calculator/
 │   ├── Dockerfile                  # Miniforge3 base image with CadQuery / OpenCASCADE & Python 3.11
 │   ├── requirements.txt            # Python dependencies (FastAPI, SQLAlchemy, CadQuery, Pydantic, etc.)
 │   ├── alembic.ini                 # Database migration configuration
-│   ├── seed.py                     # Initial database seeding script (Basic & Pro Users, Tenants, Subscriptions)
+│   ├── seed.py                     # Initial database seeding script (Basic & Pro Users, Tenants, Subscriptions, Machines)
 │   ├── alembic/                    # DB Migration scripts
 │   │   ├── env.py                  # Alembic environment runner
-│   │   └── versions/               # Migration revision history
+│   │   └── versions/               # Migration revision history (0001_initial.py, 0002_process_routing.py)
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── main.py                 # FastAPI application entrypoint, CORS setup, router registrations
@@ -58,24 +59,28 @@ Costing_calculator/
 │   │   │   └── v1/
 │   │   │       ├── auth.py         # Login, Registration, Token management endpoints
 │   │   │       ├── cad.py          # STEP/IGES CAD file upload, parsing, STL export endpoints
-│   │   │       └── costing.py      # Manufacturing cost calculation & historical quote saving
+│   │   │       ├── costing.py      # Manufacturing cost calculation & historical quote saving
+│   │   │       └── machines.py     # Machine Profile & Work Center library CRUD endpoints
 │   │   ├── models/
 │   │   │   ├── base.py             # Declarative Base class
 │   │   │   ├── user.py             # User ORM model
 │   │   │   ├── tenant.py           # Multi-tenant Organization ORM model
 │   │   │   ├── subscription.py     # Subscription tiers (BASIC, PRO, ENTERPRISE) ORM model
+│   │   │   ├── machine_profile.py  # MachineProfile & ProcessRoutingStep ORM models (Tenant RLS enabled)
 │   │   │   └── cost_estimate.py    # Cost Estimate & Calculation History ORM model
 │   │   ├── schemas/
 │   │   │   ├── auth.py             # Pydantic auth schemas (Token, UserCreate, UserResponse)
 │   │   │   ├── cad.py              # Pydantic CAD analysis schemas (CADUploadResponse, CADMetadata)
-│   │   │   └── costing.py          # Pydantic costing schemas (CostCalculationRequest, Breakdown)
+│   │   │   ├── machine.py          # Pydantic machine schemas (MachineProfileCreate, Response)
+│   │   │   └── costing.py          # Pydantic costing schemas (RoutingStepInput, Breakdown, CostPayload)
 │   │   └── services/
 │   │       ├── auth_service.py     # Password hashing (bcrypt) & JWT token minting/verification
 │   │       ├── cad_service.py      # CadQuery integration: volume, surface area, bounding box, STL mesh export
-│   │       └── cost_engine.py      # Core Cost Calculation Engine (Direct material, machining time, overheads, margin)
+│   │       └── cost_engine.py      # Core Cost Calculation Engine (Process routing, batch setup amortization, overheads, margin)
 │   └── tests/
 │       ├── conftest.py             # Pytest fixtures, test database setup, async HTTP client
 │       ├── test_cost_engine.py     # Unit tests for cost calculation formulas & edge cases
+│       ├── test_process_routing.py # Unit tests for sequenced machine steps & batch setup amortization
 │       ├── test_cad_service.py     # Unit tests for CAD file parsing
 │       └── generate_test_cube.py   # Utility script to generate test STEP geometry files
 │
@@ -99,7 +104,7 @@ Costing_calculator/
 │   │   │   ├── layout.tsx          # Dashboard Shell with Navigation Sidebar & Header
 │   │   │   ├── page.tsx            # Main Estimator Workspace Dashboard
 │   │   │   ├── history/page.tsx    # Past Quotes Archive page with search/filter
-│   │   │   ├── settings/page.tsx   # Company Overheads & Settings (Basic tier upsell guarded)
+│   │   │   ├── settings/page.tsx   # Work Centers, Company Overheads & Settings (Basic tier upsell guarded)
 │   │   │   ├── upgrade/page.tsx    # Subscription Upgrade & Checkout page
 │   │   │   └── upgrade/success/page.tsx # Checkout success confirmation page
 │   │   └── estimate/
@@ -110,7 +115,8 @@ Costing_calculator/
 │   │   ├── basic-tier-upsell-card.tsx # Upsell modal/card for restricted features
 │   │   ├── cad-viewer.tsx          # Integrated 3D viewer wrapper with interactive control overlays
 │   │   ├── company-overheads-form.tsx # Comprehensive factory overhead input matrix
-│   │   ├── cost-input-form.tsx     # Direct material, machining operations, and batch volume inputs
+│   │   ├── work-centers-form.tsx   # Data-dense Work Centers & Machine Profile library manager
+│   │   ├── cost-input-form.tsx     # Process Routing Builder table, direct material, batch size amortization
 │   │   ├── pdf-export-modal.tsx    # Professional PDF quote generation modal
 │   │   ├── sticky-cost-footer.tsx  # Dynamic bottom bar displaying live cost updates
 │   │   ├── ui/                     # Reusable UI primitives
@@ -127,7 +133,7 @@ Costing_calculator/
 │   │   │   └── Scene.tsx           # R3F 3D lighting, grid, orbit controls, mesh rendering setup
 │   │   └── wizard/                 # Guided Step-by-Step Costing Flow
 │   │       ├── WizardShell.tsx     # Step navigation container & progress tracker
-│   │       ├── Step1DirectCost.tsx # Step 1: Material & Machine operations
+│   │       ├── Step1DirectCost.tsx # Step 1: Material & Multi-Machine Process Routing
 │   │       ├── Step2Overhead.tsx   # Step 2: Shop floor overhead allocation
 │   │       └── Step3Commercials.tsx# Step 3: Margin, markup, batch quantity, & total quote preview
 │   ├── lib/
@@ -136,7 +142,7 @@ Costing_calculator/
 │   │   ├── currency.ts             # Precision financial formatting utilities (USD, EUR, GBP, INR)
 │   │   └── schemas.ts              # Shared client Zod validation schemas
 │   ├── store/
-│   │   └── costingStore.ts         # Central Zustand state store (Material, Operations, Overheads, Quote)
+│   │   └── costingStore.ts         # Central Zustand state store (RoutingSteps, Machines, BatchSize, Quote)
 │   └── e2e/                        # End-to-End Test Suite (Playwright)
 │       ├── playwright.config.ts    # Playwright runner configuration
 │       ├── estimator-calc.spec.ts  # End-to-end calculation accuracy tests

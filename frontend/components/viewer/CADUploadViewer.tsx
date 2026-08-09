@@ -283,34 +283,43 @@ export function CADUploadViewer() {
                 </div>
 
                 {/* Material Specification Banner & Interactive Dropdown */}
-                <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2 text-slate-400">
-                    <Layers className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Material Specification</span>
+                <div className="bg-slate-800/60 p-2.5 rounded-lg border border-slate-800/60 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-slate-400">
+                      <Layers className="w-3.5 h-3.5 text-cyan-400" />
+                      <span className="font-medium text-slate-300">Material Specification</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {geometry.material_name ? (
+                        <span className="text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/50 font-mono text-[10px]">
+                          CAD: {geometry.material_name}
+                        </span>
+                      ) : null}
+                      <select
+                        value={selectedMaterial}
+                        onChange={(e) => {
+                          const mat = MATERIALS_LIST.find(m => m.name === e.target.value)
+                          if (mat) {
+                            setSelectedMaterial(mat.name, mat.density)
+                          }
+                        }}
+                        className="bg-slate-900 text-cyan-400 font-mono text-xs border border-cyan-800/60 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+                      >
+                        {MATERIALS_LIST.map((mat) => (
+                          <option key={mat.name} value={mat.name} className="bg-slate-900 text-slate-200">
+                            {mat.name} ({mat.density.toFixed(2)} g/cm³)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    {geometry.material_name ? (
-                      <span className="text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/50 font-mono text-[10px]">
-                        CAD: {geometry.material_name}
-                      </span>
-                    ) : null}
-                    <select
-                      value={selectedMaterial}
-                      onChange={(e) => {
-                        const mat = MATERIALS_LIST.find(m => m.name === e.target.value)
-                        if (mat) {
-                          setSelectedMaterial(mat.name, mat.density)
-                        }
-                      }}
-                      className="bg-slate-900 text-cyan-400 font-mono text-xs border border-cyan-800/60 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
-                    >
-                      {MATERIALS_LIST.map((mat) => (
-                        <option key={mat.name} value={mat.name} className="bg-slate-900 text-slate-200">
-                          {mat.name} ({mat.density.toFixed(2)} g/cm³)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+
+                  {!geometry.material_name && (
+                    <div className="flex items-center space-x-1.5 text-[11px] text-amber-400 bg-amber-950/40 p-1.5 rounded border border-amber-800/40">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                      <span>Material specification missing in STEP file. Default selected as <strong>Mild Steel</strong>.</span>
+                    </div>
+                  )}
                 </div>
 
               {stockForm === 'bar_stock' ? (() => {

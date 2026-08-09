@@ -4,13 +4,36 @@ from uuid import UUID
 from decimal import Decimal
 from datetime import datetime
 
+class RoutingStepInput(BaseModel):
+    machine_profile_id: Optional[UUID] = None
+    machine_name: Optional[str] = None
+    sequence_order: int = 1
+    setup_time_mins: Decimal = Decimal("0")
+    cycle_time_mins: Decimal = Decimal("0")
+    hourly_rate_inr: Optional[Decimal] = Decimal("0")
+    operator_rate_inr: Optional[Decimal] = Decimal("0")
+
+class RoutingStepBreakdown(BaseModel):
+    sequence_order: int
+    machine_profile_id: Optional[UUID] = None
+    machine_name: str
+    setup_time_mins: Decimal
+    cycle_time_mins: Decimal
+    hourly_rate_inr: Decimal
+    operator_rate_inr: Decimal
+    setup_cost_per_piece: Decimal
+    run_cost_per_piece: Decimal
+    total_step_cost: Decimal
+
 class DirectCostInput(BaseModel):
     raw_material: Decimal
     tooling: Decimal
-    manufacturing: Decimal
+    manufacturing: Optional[Decimal] = Decimal("0")
     labour: Decimal
     inspection: Decimal
     logistics: Decimal
+    batch_size: Optional[int] = 100
+    routing_steps: Optional[List[RoutingStepInput]] = []
 
 class OverheadCostInput(BaseModel):
     factory_rent: Decimal
@@ -32,7 +55,16 @@ class CostPayload(BaseModel):
     overhead_cost: OverheadCostInput
     commercials: CommercialsInput
 
-class DirectCostBreakdown(DirectCostInput):
+class DirectCostBreakdown(BaseModel):
+    raw_material: Decimal
+    tooling: Decimal
+    manufacturing: Decimal
+    labour: Decimal
+    inspection: Decimal
+    logistics: Decimal
+    batch_size: int = 100
+    routing_steps: List[RoutingStepBreakdown] = []
+    total_manufacturing_cost: Decimal = Decimal("0")
     subtotal: Decimal
 
 class OverheadCostBreakdown(OverheadCostInput):

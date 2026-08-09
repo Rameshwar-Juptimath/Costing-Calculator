@@ -18,5 +18,5 @@ echo.
 echo =========================================================================
 echo Both services launched successfully!
 echo - Backend API:  http://localhost:8000 (Swagger docs at /docs)
-echo - Frontend UI:   http://localhost:3000
+echo - Frontend UI:   http://localhost:3030
 echo =========================================================================

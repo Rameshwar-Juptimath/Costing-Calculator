@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import auth, cad, costing
+from app.api.v1 import auth, cad, costing, machines
 from app.config import get_settings
 
 settings = get_settings()
@@ -54,6 +54,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(cad.router, prefix="/api/v1/cad", tags=["cad"])
 app.include_router(costing.router, prefix="/api/v1/cost", tags=["costing"])
+app.include_router(machines.router, prefix="/api/v1/machines", tags=["machines"])
 
 
 @app.get("/health", tags=["system"])

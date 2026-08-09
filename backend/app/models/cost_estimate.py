@@ -1,11 +1,14 @@
 from uuid import UUID, uuid4
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, List
 from sqlalchemy import String, ForeignKey, Numeric
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 from .base import TimestampMixin
+
+if TYPE_CHECKING:
+    from .machine_profile import ProcessRoutingStep
 
 class CostEstimate(Base, TimestampMixin):
     __tablename__ = "cost_estimates"
@@ -22,3 +25,11 @@ class CostEstimate(Base, TimestampMixin):
     currency: Mapped[str] = mapped_column(String(3), default="INR")
     tier_applied: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     mesh_file_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+
+    # Relationships
+    routing_steps: Mapped[List["ProcessRoutingStep"]] = relationship(
+        "ProcessRoutingStep",
+        back_populates="estimate",
+        cascade="all, delete-orphan",
+        order_by="ProcessRoutingStep.sequence_order"
+    )

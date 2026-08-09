@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { ZoomIn, ZoomOut, Grid, RotateCcw, Box, FileCode } from 'lucide-react'
+import { useCostingStore } from '@/store/costingStore'
 
 interface GeometrySpecs {
   volume: string
@@ -13,6 +14,7 @@ interface CADViewerProps {
 }
 
 export function CADViewer({ geometry }: CADViewerProps) {
+  const quoteRef = useCostingStore(s => s.quoteRef)
   const [viewMode, setViewMode] = useState<'3D' | '2D'>('3D')
   const [isWireframe, setIsWireframe] = useState(false)
   const [zoomLevel, setZoomLevel] = useState(1)
@@ -173,7 +175,7 @@ export function CADViewer({ geometry }: CADViewerProps) {
               {/* Title Block */}
               <rect x="240" y="260" width="200" height="70" fill="#0f172a" stroke="#38bdf8" strokeWidth="1" />
               <text x="250" y="280" fill="#f8fafc" fontSize="11" fontFamily="Inter" fontWeight="bold">PRECISION COSTENGINE</text>
-              <text x="250" y="298" fill="#94a3b8" fontSize="9" fontFamily="Inter">PART #: CE-4402-A</text>
+              <text x="250" y="298" fill="#94a3b8" fontSize="9" fontFamily="Inter">PART #: {quoteRef || 'CE-4402'}-A</text>
               <text x="250" y="315" fill="#38bdf8" fontSize="9" fontFamily="JetBrains Mono">MAT: AL-6061-T6</text>
             </svg>
           </div>

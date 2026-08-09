@@ -33,6 +33,7 @@ export function WizardShell() {
     
     setLoading(true)
     try {
+      const state = useCostingStore.getState()
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
       const res = await fetch(`${apiUrl}/api/v1/cost/calculate`, {
         method: 'POST',
@@ -46,7 +47,17 @@ export function WizardShell() {
             manufacturing: Number(data.manufacturing),
             labour: Number(data.labour),
             inspection: Number(data.inspection),
-            logistics: Number(data.logistics)
+            logistics: Number(data.logistics),
+            batch_size: state.batchSize || 100,
+            routing_steps: state.routingSteps.map(s => ({
+              sequence_order: s.sequence_order,
+              machine_name: s.machine_name,
+              machine_profile_id: s.machine_profile_id && !s.machine_profile_id.startsWith('m-') ? s.machine_profile_id : null,
+              setup_time_mins: s.setup_time_mins,
+              cycle_time_mins: s.cycle_time_mins,
+              hourly_rate_inr: s.hourly_rate_inr,
+              operator_rate_inr: s.operator_rate_inr,
+            })),
           },
           overhead_cost: {
             factory_rent: Number(data.factory_rent),

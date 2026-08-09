@@ -15,6 +15,15 @@ export default function EstimatorWorkspacePage() {
   const user = useCostingStore(s => s.user)
   const geometry = useCostingStore(s => s.geometry)
   const setCostResult = useCostingStore(s => s.setCostResult)
+  const quoteRef = useCostingStore(s => s.quoteRef)
+  const generateQuoteRef = useCostingStore(s => s.generateQuoteRef)
+
+  // Ensure a unique reference number is present when opening Estimator Workspace
+  useEffect(() => {
+    if (!quoteRef) {
+      generateQuoteRef()
+    }
+  }, [quoteRef, generateQuoteRef])
 
   const [inputs, setInputs] = useState<PrimaryCostInputs>({
     raw_material: 12500,
@@ -26,25 +35,48 @@ export default function EstimatorWorkspacePage() {
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const routingSteps = useCostingStore(s => s.routingSteps)
+  const batchSize = useCostingStore(s => s.batchSize)
+  const setMachines = useCostingStore(s => s.setMachines)
+
+  // Fetch machine library on load
+  useEffect(() => {
+    const token = useCostingStore.getState().token
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    if (token) {
+      fetch(`${apiUrl}/api/v1/machines`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.items && data.items.length > 0) {
+            setMachines(data.items.map((m: any) => ({
+              id: m.id,
+              machine_name: m.machine_name,
+              hourly_rate_inr: Number(m.hourly_rate_inr),
+              operator_rate_inr: Number(m.operator_rate_inr),
+              is_active: m.is_active
+            })))
+          }
+        })
+        .catch(err => console.error('Failed to load machines:', err))
+    }
+  }, [setMachines])
 
   // Auto-sync extracted CAD geometry metadata to cost calculation inputs
   useEffect(() => {
     if (geometry) {
       if (geometry.volume_mm3 !== undefined && geometry.volume_mm3 > 0) {
         const calculatedMaterial = Math.max(1000, Math.round(geometry.volume_mm3 * 8))
-        const calculatedMfg = Math.max(2000, Math.round(geometry.volume_mm3 * 12))
         setInputs(prev => ({
           ...prev,
           raw_material: calculatedMaterial,
-          manufacturing: calculatedMfg,
         }))
       } else if (geometry.total_area_mm2 !== undefined && geometry.total_area_mm2 > 0) {
         const calculatedMaterial = Math.max(1000, Math.round(geometry.total_area_mm2 * 4))
-        const calculatedMfg = Math.max(1500, Math.round(geometry.total_area_mm2 * 6))
         setInputs(prev => ({
           ...prev,
           raw_material: calculatedMaterial,
-          manufacturing: calculatedMfg,
         }))
       }
     }
@@ -73,12 +105,25 @@ export default function EstimatorWorkspacePage() {
     setIsSubmitting(true)
     try {
       const token = useCostingStore.getState().token
+      const currentEstimateId = useCostingStore.getState().estimateId
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
       const payload = {
-        estimate_id: 'est-' + Date.now(),
+        estimate_id: currentEstimateId || ('est-' + Date.now()),
         currency: 'INR',
-        direct_cost: inputs,
+        direct_cost: {
+          ...inputs,
+          batch_size: batchSize || 100,
+          routing_steps: routingSteps.map(s => ({
+            sequence_order: s.sequence_order,
+            machine_name: s.machine_name,
+            machine_profile_id: s.machine_profile_id && !s.machine_profile_id.startsWith('m-') ? s.machine_profile_id : null,
+            setup_time_mins: s.setup_time_mins,
+            cycle_time_mins: s.cycle_time_mins,
+            hourly_rate_inr: s.hourly_rate_inr,
+            operator_rate_inr: s.operator_rate_inr,
+          })),
+        },
         overhead_cost: {
           factory_rent: 0,
           machinery_asset: 0,
@@ -112,6 +157,7 @@ export default function EstimatorWorkspacePage() {
       console.error(e)
     } finally {
       setIsSubmitting(false)
+      generateQuoteRef()
       router.push('/dashboard/history')
     }
   }
@@ -141,6 +187,7 @@ export default function EstimatorWorkspacePage() {
             values={inputs}
             onChange={handleInputChange}
             showOverheadWarning={user?.tier !== 'Pro'}
+            quoteRef={quoteRef || undefined}
           />
         </section>
       </div>

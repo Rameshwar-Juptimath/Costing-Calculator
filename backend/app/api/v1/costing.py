@@ -1,8 +1,10 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, delete, func
 from app.dependencies import get_db, get_current_user
 from app.models.cost_estimate import CostEstimate
+from app.models.machine_profile import ProcessRoutingStep
 from app.models.subscription import PlanFeature, TenantSubscription
 from app.schemas.costing import CostPayload, CostResult, EstimatesResponse, EstimateListItem
 from app.services.cost_engine import calculate_cost
@@ -27,17 +29,32 @@ async def calculate_cost_endpoint(
         
     result_data = calculate_cost(payload, features)
     
-    # Save result to DB
-    stmt = select(CostEstimate).where(CostEstimate.id == payload.estimate_id)
-    est_res = await db.execute(stmt)
-    estimate = est_res.scalar_one_or_none()
-    if estimate:
-        estimate.direct_cost = result_data.breakdown.direct_cost.model_dump()
-        estimate.overhead_cost = result_data.breakdown.overhead_cost.model_dump() if result_data.breakdown.overhead_cost else None
-        estimate.commercials = result_data.breakdown.commercials.model_dump() if result_data.breakdown.commercials else None
-        estimate.grand_total = result_data.totals.grand_total
-        estimate.tier_applied = result_data.tier_applied
-        await db.commit()
+    # Save result to DB if estimate exists
+    try:
+        est_uuid = UUID(payload.estimate_id)
+        stmt = select(CostEstimate).where(CostEstimate.id == est_uuid)
+        est_res = await db.execute(stmt)
+        estimate = est_res.scalar_one_or_none()
+        if estimate:
+            estimate.direct_cost = result_data.breakdown.direct_cost.model_dump(mode="json")
+            estimate.overhead_cost = result_data.breakdown.overhead_cost.model_dump(mode="json") if result_data.breakdown.overhead_cost else None
+            estimate.commercials = result_data.breakdown.commercials.model_dump(mode="json") if result_data.breakdown.commercials else None
+            estimate.grand_total = result_data.totals.grand_total
+            estimate.tier_applied = result_data.tier_applied
+
+            if payload.direct_cost.routing_steps:
+                await db.execute(delete(ProcessRoutingStep).where(ProcessRoutingStep.estimate_id == estimate.id))
+                for step_input in payload.direct_cost.routing_steps:
+                    db.add(ProcessRoutingStep(
+                        estimate_id=estimate.id,
+                        machine_profile_id=step_input.machine_profile_id,
+                        sequence_order=step_input.sequence_order,
+                        setup_time_mins=step_input.setup_time_mins,
+                        cycle_time_mins=step_input.cycle_time_mins,
+                    ))
+            await db.commit()
+    except (ValueError, TypeError):
+        pass
         
     return result_data
 

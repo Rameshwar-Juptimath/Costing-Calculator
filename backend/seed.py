@@ -183,6 +183,38 @@ async def seed() -> None:
             if not res_mat.scalar_one_or_none():
                 session.add(Material(name=name, density_g_cm3=density))
 
+        # ── 8. Default Machine Profiles ────────────────────────────────────
+        from app.models.machine_profile import MachineProfile
+        from decimal import Decimal
+
+        DEFAULT_MACHINES = [
+            ("3-Axis CNC VMC", Decimal("1200.00"), Decimal("300.00")),
+            ("CNC Lathe (Turning Center)", Decimal("850.00"), Decimal("250.00")),
+            ("5-Axis CNC Mill", Decimal("2800.00"), Decimal("500.00")),
+            ("Wire EDM", Decimal("1600.00"), Decimal("350.00")),
+            ("Surface Grinding", Decimal("600.00"), Decimal("200.00")),
+            ("Sheet Metal Laser Cutting", Decimal("1500.00"), Decimal("300.00")),
+        ]
+
+        for target_tenant in [tenant, pro_tenant]:
+            for m_name, h_rate, op_rate in DEFAULT_MACHINES:
+                res_m = await session.execute(
+                    select(MachineProfile).where(
+                        MachineProfile.tenant_id == target_tenant.id,
+                        MachineProfile.machine_name == m_name
+                    )
+                )
+                if not res_m.scalar_one_or_none():
+                    session.add(
+                        MachineProfile(
+                            tenant_id=target_tenant.id,
+                            machine_name=m_name,
+                            hourly_rate_inr=h_rate,
+                            operator_rate_inr=op_rate,
+                            is_active=True
+                        )
+                    )
+
         await session.commit()
         print("✅ Seed process completed successfully.")
         print(f"   Basic Admin email: {settings.admin_email}")

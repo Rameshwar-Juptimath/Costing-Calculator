@@ -22,20 +22,24 @@ A production-grade, multi-tenant SaaS application designed for precision manufac
 - **Interactive 3D & 2D CAD Estimator Workspace**:
   - Drag-and-drop CAD upload workspace with live rendering of 3D GLB models (`@react-three/fiber`) or 2D vector drawings (HTML5 Canvas).
   - Instant auto-syncing of extracted CAD geometry features into primary direct material and manufacturing cost calculations.
+  - **Dynamic Quote Reference Generation**: Automatically generates a unique quote reference ID (e.g. `Ref: CE-XXXX`) on workspace open, which automatically regenerates and updates whenever a new quote is generated.
 
-- **Dynamic Manufacturing Cost Engine**:
+- **Dynamic Manufacturing Cost Engine & Multi-Machine Process Routing**:
+  - **Process Routing Builder**: Sequence multiple machine operations (e.g. 3-Axis CNC VMC, CNC Lathe, 5-Axis Mill, Wire EDM, Surface Grinder, Laser Cutting) in real time.
+  - **Batch Size Setup Amortization**: Automatically amortizes setup time across the user-defined batch quantity:
+    $$\text{Step Cost Per Piece} = \left( \frac{\text{Setup Time}}{60} \times \frac{\text{Machine Rate} + \text{Operator Rate}}{\text{Batch Size}} \right) + \left( \frac{\text{Cycle Time}}{60} \times (\text{Machine Rate} + \text{Operator Rate}) \right)$$
+  - **Work Centers Management**: Pro Admin users can manage their machine library with custom machine hourly rates and operator rates in Company Settings.
   - **Direct Material Cost**: Stock volume calculation with density matrices (Aluminum 6061, Stainless Steel 316, Titanium, Tool Steel, Plastics) and scrap allowance.
-  - **Machining Operations & Time**: Rate-based estimation for 3-Axis Milling, 5-Axis CNC, Turning, Wire EDM, and Surface Grinding.
-  - **Factory Overheads Allocation**: Shop floor labor rates, machine hourly depreciation, energy consumption, quality control (QC), and secondary finishing (Anodizing, Powder Coating).
-  - **Commercials & Batch Scaling**: Volume discount curves, setup fee amortizations, and profit margin multipliers.
+  - **Factory Overheads Allocation**: Shop floor labor rates, machine hourly depreciation, energy consumption, quality control (QC), and secondary finishing.
+  - **Commercials & Batch Scaling**: Volume discount curves, tax rates, and profit margin multipliers.
 
 - **Multi-Step Costing Wizard & Sticky Footer**:
   - Guided step-by-step cost breakdown workflow (Direct Cost $\rightarrow$ Overheads $\rightarrow$ Commercials & Summary).
-  - Real-time responsive calculation bar reflecting instant total price changes.
+  - Real-time responsive calculation bar reflecting instant total price changes as batch size or machine steps are modified.
 
 - **Multi-Tenant RBAC & Subscription Gating**:
   - Role-based access control with subscription tiers (`BASIC`, `PRO`, `ENTERPRISE`).
-  - Restricted feature access guarded by `<FeatureGate />` components (e.g. custom factory overhead presets locked behind PRO/ENTERPRISE).
+  - Restricted feature access guarded by `<FeatureGate />` components (e.g. custom factory overhead presets and Work Center management locked behind PRO/ENTERPRISE).
 
 - **Professional PDF Quote Export & Archive**:
   - Generate customized PDF quotes complete with company branding, itemized cost breakdowns, and delivery terms.
@@ -82,9 +86,9 @@ docker-compose up --build
 ```
 
 ### 3. Access the Application
-- **Frontend App**: `http://localhost:3000`
+- **Frontend App**: `http://localhost:3030`
 - **FastAPI OpenAPI Docs**: `http://localhost:8000/docs`
-- **PostgreSQL Database**: `localhost:5432`
+- **PostgreSQL Database**: `localhost:5433` (configurable via `POSTGRES_PORT`)
 
 ---
 
@@ -128,7 +132,7 @@ npm install
 # Start Next.js development server
 npm run dev
 ```
-Open `http://localhost:3000` in your browser.
+Open `http://localhost:3030` in your browser.
 
 ---
 
