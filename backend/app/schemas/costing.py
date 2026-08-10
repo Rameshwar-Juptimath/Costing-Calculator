@@ -34,6 +34,10 @@ class DirectCostInput(BaseModel):
     logistics: Decimal
     batch_size: Optional[int] = 100
     routing_steps: Optional[List[RoutingStepInput]] = []
+    material_id: Optional[UUID] = None
+    material_name: Optional[str] = None
+    part_diameter_mm: Optional[Decimal] = None
+    cut_length_mm: Optional[Decimal] = None
 
 class OverheadCostInput(BaseModel):
     factory_rent: Decimal
@@ -66,7 +70,14 @@ class DirectCostBreakdown(BaseModel):
     batch_size: int = 100
     routing_steps: List[RoutingStepBreakdown] = []
     total_manufacturing_cost: Decimal = Decimal("0")
+    material_id: Optional[UUID] = None
+    material_name: Optional[str] = None
+    part_diameter_mm: Optional[Decimal] = None
+    cut_length_mm: Optional[Decimal] = None
+    calculated_turning_rpm: Optional[Decimal] = None
+    calculated_cycle_time_mins: Optional[Decimal] = None
     subtotal: Decimal
+
 
 class OverheadCostBreakdown(OverheadCostInput):
     subtotal: Decimal

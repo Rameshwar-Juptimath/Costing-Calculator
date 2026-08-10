@@ -4,14 +4,15 @@ import { useCostingStore } from '@/store/costingStore'
 import { CompanyOverheadsForm, CompanyOverheadsValues } from '@/components/company-overheads-form'
 import { MachiningAllowanceForm } from '@/components/machining-allowance-form'
 import { WorkCentersForm } from '@/components/work-centers-form'
+import { MaterialsLibraryForm } from '@/components/materials-library-form'
 import { BasicTierUpsellCard } from '@/components/basic-tier-upsell-card'
-import { User, CreditCard, Factory, Percent, Cylinder, Cpu, ChevronRight } from 'lucide-react'
+import { User, CreditCard, Factory, Percent, Cylinder, Cpu, ChevronRight, Sparkles } from 'lucide-react'
 
 export default function CompanySettingsPage() {
   const user = useCostingStore(s => s.user)
   const isBasicTier = user?.tier !== 'Pro'
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'workcenters' | 'overheads' | 'commercials' | 'allowances'>('workcenters')
+  const [activeTab, setActiveTab] = useState<'profile' | 'billing' | 'workcenters' | 'materials' | 'overheads' | 'commercials' | 'allowances'>('materials')
 
   const handleSaveOverheads = async (values: CompanyOverheadsValues) => {
     try {
@@ -43,12 +44,31 @@ export default function CompanySettingsPage() {
           <li>
             <button
               type="button"
+              onClick={() => setActiveTab('materials')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold transition-colors ${
+                activeTab === 'materials'
+                  ? 'bg-indigo-600 text-white font-bold shadow-sm'
+                  : 'text-slate-600 hover:bg-slate-100'
+              }`}
+              data-testid="tab-materials"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                <span>Materials Library</span>
+              </span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </li>
+          <li>
+            <button
+              type="button"
               onClick={() => setActiveTab('workcenters')}
               className={`w-full flex items-center justify-between px-3 py-2 rounded text-xs font-semibold transition-colors ${
                 activeTab === 'workcenters'
                   ? 'bg-indigo-600 text-white font-bold shadow-sm'
                   : 'text-slate-600 hover:bg-slate-100'
               }`}
+              data-testid="tab-workcenters"
             >
               <span className="flex items-center gap-2">
                 <Cpu className="w-4 h-4" />
@@ -145,13 +165,21 @@ export default function CompanySettingsPage() {
         <div className="mt-auto p-4 bg-indigo-50/60 rounded-lg border border-indigo-100 space-y-1">
           <h4 className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider">Pro Tip</h4>
           <p className="text-xs text-slate-600">
-            Work center rates automatically drive setup amortization and cycle costs in process routing.
+            Material cutting speeds (Vc) and feeds (f) automatically calculate turning RPM and machine cycle times.
           </p>
         </div>
+
       </nav>
 
       {/* Main Settings Content Area */}
       <div className="flex-1 p-8 overflow-y-auto relative">
+        {activeTab === 'materials' && (
+          <div className="relative">
+            <MaterialsLibraryForm isDisabled={isBasicTier} />
+            {isBasicTier && <BasicTierUpsellCard />}
+          </div>
+        )}
+
         {activeTab === 'workcenters' && (
           <div className="relative">
             <WorkCentersForm isDisabled={isBasicTier} />
@@ -204,4 +232,5 @@ export default function CompanySettingsPage() {
     </div>
   )
 }
+
 

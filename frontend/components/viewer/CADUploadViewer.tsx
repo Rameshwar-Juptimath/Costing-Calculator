@@ -31,12 +31,13 @@ export function CADUploadViewer() {
   const { 
     token, meshUrl, geometry, filename, setEstimate, resetEstimate,
     stockForm, setStockForm, machiningAllowance,
-    selectedMaterial, selectedDensity, setSelectedMaterial 
+    materials, selectedMaterial, selectedDensity, setSelectedMaterial 
   } = useCostingStore()
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fileInfo, setFileInfo] = useState<{ name: string; type: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
+
 
   // Calculate Part Volume (factoring in machining allowances for Bar Stock)
   const getDisplayVolume = () => {
@@ -311,19 +312,23 @@ export function CADUploadViewer() {
                       <select
                         value={selectedMaterial}
                         onChange={(e) => {
-                          const mat = MATERIALS_LIST.find(m => m.name === e.target.value)
+                          const mat = materials.find(m => m.material_name === e.target.value)
                           if (mat) {
-                            setSelectedMaterial(mat.name, mat.density)
+                            setSelectedMaterial(mat.material_name, mat.density_g_cm3, mat.cutting_speed_m_min, mat.feed_rate_mm_rev, mat.id)
+                          } else {
+                            setSelectedMaterial(e.target.value)
                           }
                         }}
                         className="bg-slate-900 text-cyan-400 font-mono text-xs border border-cyan-800/60 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
+                        data-testid="cad-material-select"
                       >
-                        {MATERIALS_LIST.map((mat) => (
-                          <option key={mat.name} value={mat.name} className="bg-slate-900 text-slate-200">
-                            {mat.name} ({mat.density.toFixed(2)} g/cm³)
+                        {materials.filter(m => m.is_active).map((mat) => (
+                          <option key={mat.id} value={mat.material_name} className="bg-slate-900 text-slate-200">
+                            {mat.material_name} ({mat.density_g_cm3.toFixed(2)} g/cm³)
                           </option>
                         ))}
                       </select>
+
                     </div>
                   </div>
 

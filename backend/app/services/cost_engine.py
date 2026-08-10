@@ -74,8 +74,13 @@ def calculate_cost(payload: CostPayload, features: PlanFeature) -> CostResult:
         batch_size=batch_size,
         routing_steps=step_breakdowns,
         total_manufacturing_cost=round(total_mfg_cost, 2),
+        material_id=d_input.material_id,
+        material_name=d_input.material_name,
+        part_diameter_mm=d_input.part_diameter_mm,
+        cut_length_mm=d_input.cut_length_mm,
         subtotal=d_subtotal,
     )
+
 
     # Overhead costs
     o_breakdown = None

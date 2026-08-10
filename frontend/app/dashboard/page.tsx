@@ -34,8 +34,9 @@ export default function EstimatorWorkspacePage() {
   const routingSteps = useCostingStore(s => s.routingSteps)
   const batchSize = useCostingStore(s => s.batchSize)
   const setMachines = useCostingStore(s => s.setMachines)
+  const setMaterials = useCostingStore(s => s.setMaterials)
 
-  // Fetch machine library on load
+  // Fetch machine and materials libraries on load
   useEffect(() => {
     const token = useCostingStore.getState().token
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -56,8 +57,27 @@ export default function EstimatorWorkspacePage() {
           }
         })
         .catch(err => console.error('Failed to load machines:', err))
+
+      fetch(`${apiUrl}/api/v1/materials`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.items && data.items.length > 0) {
+            setMaterials(data.items.map((m: any) => ({
+              id: m.id,
+              material_name: m.material_name,
+              cutting_speed_m_min: Number(m.cutting_speed_m_min),
+              feed_rate_mm_rev: Number(m.feed_rate_mm_rev),
+              density_g_cm3: Number(m.density_g_cm3),
+              is_active: m.is_active,
+            })))
+          }
+        })
+        .catch(err => console.error('Failed to load materials:', err))
     }
-  }, [setMachines])
+  }, [setMachines, setMaterials])
+
 
   // Auto-sync extracted CAD geometry metadata to cost calculation inputs
   useEffect(() => {
@@ -115,7 +135,13 @@ export default function EstimatorWorkspacePage() {
       const token = useCostingStore.getState().token
       const currentEstimateId = useCostingStore.getState().estimateId
       const currentFilename = useCostingStore.getState().filename
+      const currentMatId = useCostingStore.getState().selectedMaterialId
+      const currentMatName = useCostingStore.getState().selectedMaterial
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+
+      const partDia = geometry?.part_forms?.bar_stock?.diameter_mm || ((geometry?.bounding_box?.x_mm || 50) + (geometry?.bounding_box?.y_mm || 50)) / 2
+      const partLen = geometry?.part_forms?.bar_stock?.height_mm || (geometry?.bounding_box?.z_mm || 100)
 
       const payload = {
         estimate_id: currentEstimateId || undefined,
@@ -124,6 +150,10 @@ export default function EstimatorWorkspacePage() {
         direct_cost: {
           ...inputs,
           batch_size: batchSize || 100,
+          material_id: currentMatId && !currentMatId.startsWith('mat-') ? currentMatId : null,
+          material_name: currentMatName,
+          part_diameter_mm: partDia,
+          cut_length_mm: partLen,
           routing_steps: routingSteps.map(s => ({
             sequence_order: s.sequence_order,
             machine_name: s.machine_name,
@@ -143,6 +173,7 @@ export default function EstimatorWorkspacePage() {
           fixed_salary: 0,
           expenses: 0,
         },
+
         commercials: {
           tax_rate: 18,
           profit_margin_rate: 15,

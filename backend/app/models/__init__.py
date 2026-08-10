@@ -4,5 +4,7 @@ from .user import User, UserRole
 from .subscription import SubscriptionTier, TierName, TenantSubscription, PlanFeature
 from .cost_estimate import CostEstimate
 from .material import Material
+from .material_machinability import MaterialMachinability
 from .machine_profile import MachineProfile, ProcessRoutingStep
 from app.database import Base
+

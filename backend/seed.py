@@ -215,7 +215,42 @@ async def seed() -> None:
                         )
                     )
 
+        # ── 9. Default Material Machinability Libraries ─────────────────────
+        from app.models.material_machinability import MaterialMachinability
+
+        DEFAULT_MACHINABILITY = [
+            ("Aluminum 6061 - Carbide Tooling", 300.0, 0.25, 2.70),
+            ("Mild Steel A36 - Carbide Tooling", 180.0, 0.20, 7.85),
+            ("Stainless Steel 316 - Carbide Tooling", 120.0, 0.15, 8.00),
+            ("Stainless Steel 304 - Carbide Tooling", 130.0, 0.16, 8.00),
+            ("Brass C360 - High Speed Tooling", 350.0, 0.30, 8.50),
+            ("Titanium Grade 5 - Carbide Tooling", 50.0, 0.10, 4.43),
+            ("Delrin (POM) - High Speed Tooling", 400.0, 0.35, 1.41),
+            ("Cast Iron - Carbide Tooling", 150.0, 0.22, 7.20),
+        ]
+
+        for target_tenant in [tenant, pro_tenant]:
+            for mat_name, v_c, f_rate, dens in DEFAULT_MACHINABILITY:
+                res_mm = await session.execute(
+                    select(MaterialMachinability).where(
+                        MaterialMachinability.tenant_id == target_tenant.id,
+                        MaterialMachinability.material_name == mat_name,
+                    )
+                )
+                if not res_mm.scalar_one_or_none():
+                    session.add(
+                        MaterialMachinability(
+                            tenant_id=target_tenant.id,
+                            material_name=mat_name,
+                            cutting_speed_m_min=v_c,
+                            feed_rate_mm_rev=f_rate,
+                            density_g_cm3=dens,
+                            is_active=True,
+                        )
+                    )
+
         await session.commit()
+
         print("✅ Seed process completed successfully.")
         print(f"   Basic Admin email: {settings.admin_email}")
         print(f"   Basic Tenant:      {tenant.name} (slug: {tenant.slug})")
