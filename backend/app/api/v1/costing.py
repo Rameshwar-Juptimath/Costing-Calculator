@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +9,8 @@ from app.models.machine_profile import ProcessRoutingStep
 from app.models.subscription import PlanFeature, TenantSubscription
 from app.schemas.costing import CostPayload, CostResult, EstimatesResponse, EstimateListItem
 from app.services.cost_engine import calculate_cost
+
+from app.services.quote_service import get_next_quote_ref
 
 router = APIRouter()
 
@@ -29,42 +32,73 @@ async def calculate_cost_endpoint(
         
     result_data = calculate_cost(payload, features)
     
-    # Save result to DB if estimate exists
-    try:
-        est_uuid = UUID(payload.estimate_id)
-        stmt = select(CostEstimate).where(CostEstimate.id == est_uuid)
-        est_res = await db.execute(stmt)
-        estimate = est_res.scalar_one_or_none()
-        if estimate:
-            estimate.direct_cost = result_data.breakdown.direct_cost.model_dump(mode="json")
-            estimate.overhead_cost = result_data.breakdown.overhead_cost.model_dump(mode="json") if result_data.breakdown.overhead_cost else None
-            estimate.commercials = result_data.breakdown.commercials.model_dump(mode="json") if result_data.breakdown.commercials else None
-            estimate.grand_total = result_data.totals.grand_total
-            estimate.tier_applied = result_data.tier_applied
+    # Save/persist result to DB
+    estimate = None
+    if payload.estimate_id:
+        try:
+            est_uuid = UUID(str(payload.estimate_id))
+            stmt = select(CostEstimate).where(
+                CostEstimate.id == est_uuid,
+                CostEstimate.tenant_id == current_user["tenant_id"]
+            )
+            est_res = await db.execute(stmt)
+            estimate = est_res.scalar_one_or_none()
+        except (ValueError, TypeError):
+            estimate = None
 
-            if payload.direct_cost.routing_steps:
-                await db.execute(delete(ProcessRoutingStep).where(ProcessRoutingStep.estimate_id == estimate.id))
-                for step_input in payload.direct_cost.routing_steps:
-                    db.add(ProcessRoutingStep(
-                        estimate_id=estimate.id,
-                        machine_profile_id=step_input.machine_profile_id,
-                        sequence_order=step_input.sequence_order,
-                        setup_time_mins=step_input.setup_time_mins,
-                        cycle_time_mins=step_input.cycle_time_mins,
-                    ))
-            await db.commit()
-    except (ValueError, TypeError):
-        pass
-        
+    if not estimate:
+        quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
+        estimate = CostEstimate(
+            tenant_id=current_user["tenant_id"],
+            user_id=current_user["user_id"],
+            quote_number=quote_number,
+            quote_ref=quote_ref,
+            filename=payload.filename or "Custom Component",
+            file_type="step",
+            currency=payload.currency or "INR",
+        )
+        db.add(estimate)
+        await db.flush()
+    else:
+        if not estimate.quote_ref:
+            quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
+            estimate.quote_number = quote_number
+            estimate.quote_ref = quote_ref
+
+    estimate.direct_cost = result_data.breakdown.direct_cost.model_dump(mode="json")
+    estimate.overhead_cost = result_data.breakdown.overhead_cost.model_dump(mode="json") if result_data.breakdown.overhead_cost else None
+    estimate.commercials = result_data.breakdown.commercials.model_dump(mode="json") if result_data.breakdown.commercials else None
+    estimate.grand_total = result_data.totals.grand_total
+    estimate.tier_applied = result_data.tier_applied
+
+    if payload.direct_cost.routing_steps:
+        await db.execute(delete(ProcessRoutingStep).where(ProcessRoutingStep.estimate_id == estimate.id))
+        for step_input in payload.direct_cost.routing_steps:
+            db.add(ProcessRoutingStep(
+                estimate_id=estimate.id,
+                machine_profile_id=step_input.machine_profile_id,
+                sequence_order=step_input.sequence_order,
+                setup_time_mins=step_input.setup_time_mins,
+                cycle_time_mins=step_input.cycle_time_mins,
+            ))
+
+    await db.commit()
+    await db.refresh(estimate)
+    
+    result_data.estimate_id = str(estimate.id)
+    result_data.quote_ref = estimate.quote_ref
     return result_data
 
+@router.get("", response_model=EstimatesResponse)
 @router.get("/estimates", response_model=EstimatesResponse)
 async def list_estimates(
     current_user: dict = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     result = await db.execute(
-        select(CostEstimate).order_by(CostEstimate.created_at.desc())
+        select(CostEstimate)
+        .where(CostEstimate.tenant_id == current_user["tenant_id"])
+        .order_by(CostEstimate.created_at.desc())
     )
     items = result.scalars().all()
     
@@ -72,6 +106,8 @@ async def list_estimates(
         items=[
             EstimateListItem(
                 id=item.id,
+                quote_ref=item.quote_ref,
+                quote_number=item.quote_number,
                 filename=item.filename,
                 file_type=item.file_type,
                 grand_total=item.grand_total,
@@ -83,6 +119,34 @@ async def list_estimates(
         ],
         total=len(items)
     )
+
+@router.delete("/estimates/{estimate_id}")
+@router.delete("/{estimate_id}")
+async def delete_estimate(
+    estimate_id: UUID,
+    current_user: dict = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(CostEstimate).where(
+        CostEstimate.id == estimate_id,
+        CostEstimate.tenant_id == current_user["tenant_id"]
+    )
+    result = await db.execute(stmt)
+    estimate = result.scalar_one_or_none()
+    if not estimate:
+        raise HTTPException(status_code=404, detail="Estimate not found")
+
+    if estimate.mesh_file_path:
+        try:
+            p = Path(estimate.mesh_file_path)
+            if p.exists():
+                p.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    await db.delete(estimate)
+    await db.commit()
+    return {"success": True, "message": "Estimate deleted successfully", "id": str(estimate_id)}
 
 @router.get("/materials")
 async def list_materials(db: AsyncSession = Depends(get_db)):

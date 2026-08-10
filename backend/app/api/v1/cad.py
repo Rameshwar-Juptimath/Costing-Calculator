@@ -74,9 +74,14 @@ async def upload_cad(
         file_path.unlink(missing_ok=True)
         raise HTTPException(status_code=422, detail=f"CAD processing failed: {exc}") from exc
 
+    from app.services.quote_service import get_next_quote_ref
+    quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
+
     estimate = CostEstimate(
         tenant_id=current_user["tenant_id"],
         user_id=current_user["user_id"],
+        quote_number=quote_number,
+        quote_ref=quote_ref,
         filename=file.filename,
         file_type="step" if is_step else "dxf",
         geometry_data=result["geometry"],
@@ -91,7 +96,8 @@ async def upload_cad(
     )
 
     return UploadResponse(
-        estimate_id=str(estimate.id),
+        estimate_id=estimate.id,
+        quote_ref=quote_ref,
         filename=file.filename,
         file_type="step" if is_step else "dxf",
         geometry=result["geometry"],

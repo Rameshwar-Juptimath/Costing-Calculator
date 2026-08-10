@@ -83,7 +83,7 @@ interface CostingStore {
 
   setUser: (user: AuthUser, features: UserFeatures) => void
   setToken: (token: string) => void
-  setEstimate: (id: string, geometry: any, meshUrl: string | null, filename?: string) => void
+  setEstimate: (id: string, geometry: any, meshUrl: string | null, filename?: string, quoteRef?: string) => void
   setCostResult: (result: any) => void
   setStep: (step: 1 | 2 | 3) => void
   setStockForm: (stockForm: 'bar_stock' | 'sheet') => void
@@ -96,13 +96,9 @@ interface CostingStore {
   removeStep: (id: string) => void
   updateStep: (id: string, updates: Partial<RoutingStep>) => void
   calculateManufacturingCost: (customBatchSize?: number) => number
-  generateQuoteRef: () => string
-  setQuoteRef: (ref: string) => void
+  setQuoteRef: (ref: string | null) => void
+  resetEstimate: () => void
   logout: () => void
-}
-
-const createUniqueRef = (): string => {
-  return 'CE-' + Math.floor(1000 + Math.random() * 9000)
 }
 
 export const useCostingStore = create<CostingStore>()(persist(
@@ -127,7 +123,7 @@ export const useCostingStore = create<CostingStore>()(persist(
 
     setUser: (user, features) => set({ user, features }),
     setToken: (token) => set({ token }),
-    setEstimate: (estimateId, geometry, meshUrl, filename) => {
+    setEstimate: (estimateId, geometry, meshUrl, filename, quoteRef) => {
       const recForm = geometry?.part_forms?.recommended_form || 'bar_stock'
       const matName = geometry?.material_name || 'Mild Steel'
       const densityMap: Record<string, number> = {
@@ -151,6 +147,7 @@ export const useCostingStore = create<CostingStore>()(persist(
       const matchedDensity = densityMap[matName.toLowerCase()] ?? 7.85
       set({ 
         estimateId, geometry, meshUrl, filename: filename || null, 
+        quoteRef: quoteRef || get().quoteRef || null,
         stockForm: recForm as 'bar_stock' | 'sheet',
         selectedMaterial: matName,
         selectedDensity: matchedDensity
@@ -202,16 +199,22 @@ export const useCostingStore = create<CostingStore>()(persist(
       }
       return Math.round(total * 100) / 100
     },
-    generateQuoteRef: () => {
-      let newRef = createUniqueRef()
-      const current = get().quoteRef
-      while (newRef === current) {
-        newRef = createUniqueRef()
-      }
-      set({ quoteRef: newRef })
-      return newRef
-    },
     setQuoteRef: (quoteRef) => set({ quoteRef }),
+    resetEstimate: () => set({
+      estimateId: null,
+      quoteRef: null,
+      filename: null,
+      geometry: null,
+      meshUrl: null,
+      costResult: null,
+      currentStep: 1,
+      stockForm: 'bar_stock',
+      machiningAllowance: { bar_stock_radius: 1.0, bar_stock_height: 3.0 },
+      selectedMaterial: 'Mild Steel',
+      selectedDensity: 7.85,
+      batchSize: 100,
+      routingSteps: DEFAULT_INITIAL_STEPS,
+    }),
     logout: () => set({
       user: null, features: null, token: null, estimateId: null, quoteRef: null, filename: null,
       geometry: null, meshUrl: null, costResult: null, currentStep: 1, stockForm: 'bar_stock',
@@ -220,5 +223,16 @@ export const useCostingStore = create<CostingStore>()(persist(
       batchSize: 100, routingSteps: DEFAULT_INITIAL_STEPS
     }),
   }),
-  { name: 'costing-store' }
+  {
+    name: 'costing-store',
+    version: 2,
+    migrate: (persistedState: any, version: number) => {
+      if (persistedState && typeof persistedState === 'object') {
+        if (persistedState.quoteRef && typeof persistedState.quoteRef === 'string' && persistedState.quoteRef.startsWith('CE-')) {
+          persistedState.quoteRef = null
+        }
+      }
+      return persistedState
+    }
+  }
 ))

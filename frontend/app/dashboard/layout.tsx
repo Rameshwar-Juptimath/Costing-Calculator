@@ -113,7 +113,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
           <div className="min-w-0 flex-1 mr-2">
             <p className="text-xs font-semibold text-white truncate">{user?.email || 'Guest User'}</p>
-            <p className="text-[10px] text-indigo-400 truncate font-mono">{user?.tenant_name || 'Demo Tenant'} ({user?.tier || 'Basic'})</p>
+            <p className="text-[10px] text-indigo-400 truncate font-mono" data-testid="tier-badge">{user?.tenant_name || 'Demo Tenant'} ({user?.tier || 'Basic'})</p>
           </div>
           <button
             onClick={handleLogout}

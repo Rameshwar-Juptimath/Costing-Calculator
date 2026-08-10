@@ -77,6 +77,12 @@ export function WizardShell() {
       if (!res.ok) throw new Error('Calculation failed')
       const result = await res.json()
       setCostResult(result)
+      if (result.estimate_id) {
+        useCostingStore.setState({ estimateId: result.estimate_id })
+      }
+      if (result.quote_ref) {
+        useCostingStore.setState({ quoteRef: result.quote_ref })
+      }
     } catch (err) {
       console.error(err)
     } finally {

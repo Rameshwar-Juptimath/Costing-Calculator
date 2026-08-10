@@ -1,4 +1,14 @@
 import re
+import math
+import uuid
+from pathlib import Path
+import ezdxf
+from starlette.concurrency import run_in_threadpool
+
+try:
+    import cadquery as cq
+except ImportError:
+    cq = None
 
 
 def _extract_step_material(file_path: str) -> str | None:

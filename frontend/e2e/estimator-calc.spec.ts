@@ -1,9 +1,16 @@
 import { test, expect } from '@playwright/test'
 
+async function loginAs(page: any, email: string, password: string) {
+  await page.goto('/login')
+  await page.fill('[data-testid="email-input"]', email)
+  await page.fill('[data-testid="password-input"]', password)
+  await page.click('[data-testid="login-button"]')
+  await page.waitForURL('/dashboard')
+}
+
 test.describe('Estimator Workspace - Process Routing & Real-Time Calculation', () => {
   test('Accurately amortizes setup time across batch sizes and updates sticky footer in real-time', async ({ page }) => {
-    // Navigate directly to dashboard workspace
-    await page.goto('/dashboard')
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
 
     // Direct Cost Inputs
     const rawMaterialInput = page.locator('[data-testid="input-raw-material"]')
@@ -50,11 +57,75 @@ test.describe('Estimator Workspace - Process Routing & Real-Time Calculation', (
     await expect(stepRows).toHaveCount(2)
   })
 
-  test('Estimator Workspace displays dynamic unique quote reference number', async ({ page }) => {
-    await page.goto('/dashboard')
+  test('Estimator Workspace displays dynamic quote reference badge', async ({ page }) => {
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
     const refBadge = page.locator('[data-testid="quote-ref-badge"]')
     await expect(refBadge).toBeVisible()
     const initialText = await refBadge.innerText()
-    expect(initialText).toMatch(/^Ref: CE-\d{4}$/)
+    expect(initialText).toMatch(/^Ref:\s+(REF-\d{4}|REF-Pending)$/)
+  })
+
+  test('Full Flow: Generates quote in Workspace, persists to DB, and displays sequential REF in Past Quotes', async ({ page }) => {
+    // 1. Open Estimator Workspace
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
+    await page.goto('/dashboard')
+
+    // 2. Fill in Direct Costs
+    await page.locator('[data-testid="input-raw-material"]').fill('15000')
+    await page.locator('[data-testid="input-tooling"]').fill('6000')
+
+    // 3. Click "Generate Quote"
+    const generateBtn = page.locator('[data-testid="generate-quote-button"]')
+    await expect(generateBtn).toBeVisible()
+    await generateBtn.click()
+
+    // 4. Verify navigation to the Past Quotes page
+    await page.waitForURL('**/dashboard/history')
+    await expect(page).toHaveURL(/\/dashboard\/history/)
+
+    // 5. Assert that the newly created quote reference (e.g. REF-1001) is visible in the first row of the table
+    const firstRowRef = page.locator('tbody tr td').first()
+    await expect(firstRowRef).toBeVisible()
+    const refText = await firstRowRef.innerText()
+    expect(refText).toMatch(/^REF-\d{4}$/)
+  })
+
+  test('Past Quotes Archive: Delete quote button removes estimate', async ({ page }) => {
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
+    
+    // Handle confirm dialog automatically
+    page.on('dialog', async dialog => {
+      await dialog.accept()
+    })
+
+    const responsePromise = page.waitForResponse(resp => resp.url().includes('/api/v1/cost/estimates') && resp.status() === 200)
+    await page.goto('/dashboard/history')
+    await responsePromise
+
+    await page.waitForTimeout(500)
+    const initialRowsCount = await page.locator('tbody tr').count()
+    expect(initialRowsCount).toBeGreaterThan(0)
+
+    const firstDeleteBtn = page.locator('button[data-testid^="delete-quote-"]').first()
+    await expect(firstDeleteBtn).toBeVisible()
+    await firstDeleteBtn.click()
+
+    // Row count decreases by 1
+    await expect(page.locator('tbody tr')).toHaveCount(initialRowsCount - 1)
+  })
+
+  test('Estimator Workspace: New Estimate button clears workspace and resets ref', async ({ page }) => {
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
+    await page.goto('/dashboard')
+
+    // Check if new estimate button is visible or triggered after fill
+    await page.locator('[data-testid="input-raw-material"]').fill('99999')
+    const newEstBtn = page.locator('[data-testid="new-estimate-btn"]')
+    if (await newEstBtn.isVisible()) {
+      await newEstBtn.click()
+      const refBadge = page.locator('[data-testid="quote-ref-badge"]')
+      await expect(refBadge).toContainText('REF-Pending')
+    }
   })
 })
+

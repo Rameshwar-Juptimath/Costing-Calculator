@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import { useState, useRef } from 'react'
 import { useCostingStore } from '@/store/costingStore'
 import { Button } from '@/components/ui/Button'
-import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layers, Scale } from 'lucide-react'
+import { UploadCloud, FileText, CheckCircle2, AlertCircle, RefreshCw, Box, Layers, Scale, Trash2 } from 'lucide-react'
 
 const CADViewer = dynamic(() => import('./CADViewer').then(m => m.CADViewer), { ssr: false })
 const DXF2DViewer = dynamic(() => import('./DXF2DViewer').then(m => m.DXF2DViewer), { ssr: false })
@@ -29,7 +29,7 @@ const MATERIALS_LIST = [
 
 export function CADUploadViewer() {
   const { 
-    token, meshUrl, geometry, filename, setEstimate, 
+    token, meshUrl, geometry, filename, setEstimate, resetEstimate,
     stockForm, setStockForm, machiningAllowance,
     selectedMaterial, selectedDensity, setSelectedMaterial 
   } = useCostingStore()
@@ -102,7 +102,7 @@ export function CADUploadViewer() {
           : `${apiUrl}${data.mesh_url}`
         : null
 
-      setEstimate(data.estimate_id, data.geometry, fullMeshUrl, data.filename)
+      setEstimate(data.estimate_id, data.geometry, fullMeshUrl, data.filename, data.quote_ref)
       setFileInfo({ name: data.filename, type: data.file_type })
     } catch (err: any) {
       setError(err.message || 'CAD file processing failed.')
@@ -178,16 +178,29 @@ export function CADUploadViewer() {
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               <span className="text-xs font-medium text-slate-200">{filename || fileInfo?.name || 'CAD File Loaded'}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="text-xs flex items-center space-x-1"
-            >
-              <RefreshCw className="w-3 h-3 mr-1" />
-              <span>Replace File</span>
-            </Button>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="text-xs flex items-center space-x-1 text-slate-300 hover:text-white"
+              >
+                <RefreshCw className="w-3 h-3 mr-1" />
+                <span>Replace File</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={() => resetEstimate()}
+                className="text-xs flex items-center space-x-1 text-slate-400 hover:text-red-400"
+                title="Clear loaded CAD model & reset estimate"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                <span>Clear</span>
+              </Button>
+            </div>
           </div>
 
           {meshUrl ? (

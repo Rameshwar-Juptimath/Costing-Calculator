@@ -1,7 +1,16 @@
 import { test, expect } from '@playwright/test'
 
+async function loginAs(page: any, email: string, password: string) {
+  await page.goto('/login')
+  await page.fill('[data-testid="email-input"]', email)
+  await page.fill('[data-testid="password-input"]', password)
+  await page.click('[data-testid="login-button"]')
+  await page.waitForURL('/dashboard')
+}
+
 test.describe('RBAC System - Basic Tier Feature Gating & Upsell Card', () => {
   test('Renders company_settings_basic_tier_upsell state for Basic tier users', async ({ page }) => {
+    await loginAs(page, 'admin@example.com', 'Admin@123!')
     // Navigate to Company Settings
     await page.goto('/dashboard/settings')
 

@@ -49,7 +49,8 @@ class CommercialsInput(BaseModel):
     profit_margin_rate: Decimal
 
 class CostPayload(BaseModel):
-    estimate_id: str
+    estimate_id: Optional[str] = None
+    filename: Optional[str] = None
     currency: str = "INR"
     direct_cost: DirectCostInput
     overhead_cost: OverheadCostInput
@@ -92,6 +93,7 @@ class CostTotals(BaseModel):
 
 class CostResult(BaseModel):
     estimate_id: str
+    quote_ref: Optional[str] = None
     currency: str
     currency_symbol: str = "₹"
     breakdown: CostBreakdown
@@ -100,6 +102,8 @@ class CostResult(BaseModel):
 
 class EstimateListItem(BaseModel):
     id: UUID
+    quote_ref: Optional[str] = None
+    quote_number: Optional[int] = None
     filename: str
     file_type: str
     grand_total: Optional[Decimal]

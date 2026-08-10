@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useCostingStore } from '@/store/costingStore'
 import { PDFExportModal, PDFExportData } from '@/components/pdf-export-modal'
-import { Search, Filter, FileText, TrendingUp, IndianRupee, Layers, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Search, Filter, FileText, TrendingUp, IndianRupee, Layers, CheckCircle2, ChevronRight, Trash2 } from 'lucide-react'
 import { formatINR } from '@/lib/currency'
 
 interface QuoteRow {
@@ -19,7 +19,7 @@ interface QuoteRow {
 const INITIAL_QUOTES: QuoteRow[] = [
   {
     id: '1',
-    ref: 'CE-4402',
+    ref: 'REF-1005',
     date: 'Oct 24, 2024',
     projectName: 'Project Alpha - Chassis V2',
     material: 'Aluminium 6061-T6',
@@ -29,7 +29,7 @@ const INITIAL_QUOTES: QuoteRow[] = [
   },
   {
     id: '2',
-    ref: 'CE-4401',
+    ref: 'REF-1004',
     date: 'Oct 22, 2024',
     projectName: 'Brake Caliper Assembly',
     material: 'Stainless Steel 316',
@@ -39,7 +39,7 @@ const INITIAL_QUOTES: QuoteRow[] = [
   },
   {
     id: '3',
-    ref: 'CE-4399',
+    ref: 'REF-1003',
     date: 'Oct 19, 2024',
     projectName: 'Drone Frame Arm Support',
     material: 'Carbon Fiber / AL 7075',
@@ -49,7 +49,7 @@ const INITIAL_QUOTES: QuoteRow[] = [
   },
   {
     id: '4',
-    ref: 'CE-4395',
+    ref: 'REF-1002',
     date: 'Oct 15, 2024',
     projectName: 'Turbine Housing Core',
     material: 'Titanium Grade 5',
@@ -59,7 +59,7 @@ const INITIAL_QUOTES: QuoteRow[] = [
   },
   {
     id: '5',
-    ref: 'CE-4388',
+    ref: 'REF-1001',
     date: 'Oct 10, 2024',
     projectName: 'Hydraulic Manifold Block',
     material: 'Aluminium 6061-T6',
@@ -75,6 +75,7 @@ export default function PastQuotesArchivePage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('All')
   const [selectedManager, setSelectedManager] = useState<string>('All')
   const [selectedPDFData, setSelectedPDFData] = useState<PDFExportData | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   useEffect(() => {
     // Fetch backend estimates if available
@@ -87,9 +88,9 @@ export default function PastQuotesArchivePage() {
         .then(res => (res.ok ? res.json() : null))
         .then(data => {
           if (data && data.items && data.items.length > 0) {
-            const mapped: QuoteRow[] = data.items.map((item: any, idx: number) => ({
-              id: item.id,
-              ref: `CE-${4400 + idx}`,
+            const mapped: QuoteRow[] = data.items.map((item: any) => ({
+              id: String(item.id),
+              ref: item.quote_ref || (item.quote_number ? `REF-${item.quote_number}` : 'REF-1001'),
               date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
               projectName: item.filename || 'Custom Component',
               material: 'Aluminium 6061-T6',
@@ -103,6 +104,37 @@ export default function PastQuotesArchivePage() {
         .catch(console.error)
     }
   }, [])
+
+  const handleDeleteQuote = async (id: string, ref: string) => {
+    if (!window.confirm(`Are you sure you want to delete quote ${ref}?`)) {
+      return
+    }
+
+    setDeletingId(id)
+    try {
+      const token = useCostingStore.getState().token
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      if (token) {
+        const res = await fetch(`${apiUrl}/api/v1/cost/estimates/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (!res.ok) {
+          throw new Error('Failed to delete quote')
+        }
+      }
+      setQuotes(prev => prev.filter(q => q.id !== id))
+      const storeEstId = useCostingStore.getState().estimateId
+      if (storeEstId === id) {
+        useCostingStore.getState().resetEstimate()
+      }
+    } catch (err) {
+      console.error('Delete quote error:', err)
+      alert('Failed to delete quote. Please try again.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const filteredQuotes = quotes.filter(q => {
     const matchesSearch =
@@ -268,14 +300,26 @@ export default function PastQuotesArchivePage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => openPDFExport(quote)}
-                      className="px-3 py-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-indigo-200 rounded font-semibold text-xs transition-all flex items-center gap-1 mx-auto"
-                      data-testid={`export-pdf-${quote.ref}`}
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Export PDF</span>
-                    </button>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        onClick={() => openPDFExport(quote)}
+                        className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 border border-indigo-200 rounded font-semibold text-xs transition-all flex items-center gap-1"
+                        data-testid={`export-pdf-${quote.ref}`}
+                        title="Export PDF Quote"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>Export PDF</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteQuote(quote.id, quote.ref)}
+                        disabled={deletingId === quote.id}
+                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 rounded transition-all disabled:opacity-50"
+                        data-testid={`delete-quote-${quote.ref}`}
+                        title="Delete Quote"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

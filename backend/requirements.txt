@@ -13,3 +13,5 @@ alembic
 psycopg2-binary
 httpx
 cadquery
+pytest
+pytest-asyncio

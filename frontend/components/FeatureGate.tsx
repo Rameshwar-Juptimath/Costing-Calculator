@@ -17,13 +17,10 @@ export function FeatureGate({ feature, children }: FeatureGateProps) {
   if (!features || features[feature]) return <>{children}</>
   
   return (
-    <div className="relative">
+    <div className="relative py-12">
       {/* Blurred/locked overlay */}
-      <div className="pointer-events-none opacity-30 blur-sm select-none">
-        {children}
-      </div>
       <div 
-        className="absolute inset-0 flex items-center justify-center cursor-pointer"
+        className="flex items-center justify-center cursor-pointer"
         onClick={() => setShowModal(true)}
         data-testid="upsell-modal-trigger"
       >

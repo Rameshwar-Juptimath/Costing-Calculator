@@ -1,7 +1,7 @@
 from uuid import UUID, uuid4
 from decimal import Decimal
 from typing import Optional, TYPE_CHECKING, List
-from sqlalchemy import String, ForeignKey, Numeric
+from sqlalchemy import String, ForeignKey, Numeric, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
@@ -13,8 +13,10 @@ if TYPE_CHECKING:
 class CostEstimate(Base, TimestampMixin):
     __tablename__ = "cost_estimates"
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    tenant_id: Mapped[UUID] = mapped_column(ForeignKey("tenants.id"), nullable=False)
+    tenant_id: Mapped[UUID] = mapped_column(ForeignKey("tenants.id"), nullable=False, index=True)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
+    quote_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
+    quote_ref: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, index=True)
     filename: Mapped[str] = mapped_column(String(255))
     file_type: Mapped[str] = mapped_column(String(10))  # 'step' or 'dxf'
     geometry_data: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)

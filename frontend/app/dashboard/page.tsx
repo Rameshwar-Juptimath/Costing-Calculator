@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic'
 import React, { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Plus } from 'lucide-react'
 import { useCostingStore } from '@/store/costingStore'
 import { CostInputForm, PrimaryCostInputs } from '@/components/cost-input-form'
 import { StickyCostFooter } from '@/components/sticky-cost-footer'
@@ -14,16 +15,11 @@ export default function EstimatorWorkspacePage() {
   const router = useRouter()
   const user = useCostingStore(s => s.user)
   const geometry = useCostingStore(s => s.geometry)
+  const filename = useCostingStore(s => s.filename)
   const setCostResult = useCostingStore(s => s.setCostResult)
   const quoteRef = useCostingStore(s => s.quoteRef)
-  const generateQuoteRef = useCostingStore(s => s.generateQuoteRef)
-
-  // Ensure a unique reference number is present when opening Estimator Workspace
-  useEffect(() => {
-    if (!quoteRef) {
-      generateQuoteRef()
-    }
-  }, [quoteRef, generateQuoteRef])
+  const setQuoteRef = useCostingStore(s => s.setQuoteRef)
+  const resetEstimate = useCostingStore(s => s.resetEstimate)
 
   const [inputs, setInputs] = useState<PrimaryCostInputs>({
     raw_material: 12500,
@@ -101,15 +97,29 @@ export default function EstimatorWorkspacePage() {
     )
   }, [inputs])
 
+  const handleNewEstimate = () => {
+    resetEstimate()
+    setInputs({
+      raw_material: 12500,
+      tooling: 8000,
+      manufacturing: 15200,
+      labour: 4500,
+      inspection: 2200,
+      logistics: 3270,
+    })
+  }
+
   const handleGenerateQuote = async () => {
     setIsSubmitting(true)
     try {
       const token = useCostingStore.getState().token
       const currentEstimateId = useCostingStore.getState().estimateId
+      const currentFilename = useCostingStore.getState().filename
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
       const payload = {
-        estimate_id: currentEstimateId || ('est-' + Date.now()),
+        estimate_id: currentEstimateId || undefined,
+        filename: currentFilename || 'Custom Machined Part',
         currency: 'INR',
         direct_cost: {
           ...inputs,
@@ -151,13 +161,18 @@ export default function EstimatorWorkspacePage() {
         if (res.ok) {
           const data = await res.json()
           setCostResult(data)
+          if (data.estimate_id) {
+            useCostingStore.setState({ estimateId: data.estimate_id })
+          }
+          if (data.quote_ref) {
+            setQuoteRef(data.quote_ref)
+          }
         }
       }
     } catch (e) {
       console.error(e)
     } finally {
       setIsSubmitting(false)
-      generateQuoteRef()
       router.push('/dashboard/history')
     }
   }
@@ -176,6 +191,18 @@ export default function EstimatorWorkspacePage() {
                 </h1>
                 <p className="text-xs text-slate-400">Upload 3D (.step, .stp) or 2D (.dxf, .dwg, .dwf) technical drawings to render and proceed with costing</p>
               </div>
+              {(filename || quoteRef) && (
+                <button
+                  type="button"
+                  onClick={handleNewEstimate}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                  title="Clear loaded part and start a fresh estimate"
+                  data-testid="new-estimate-btn"
+                >
+                  <Plus className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>New Estimate</span>
+                </button>
+              )}
             </div>
             <CADUploadViewer />
           </div>

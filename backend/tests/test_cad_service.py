@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from app.services.cad_service import _process_step_sync
+from app.services.cad_service import _process_step_sync, process_step_file, process_dxf_file
 import tempfile
 
 TEST_CUBE_PATH = str(Path(__file__).parent / "test_cube.step")
@@ -21,4 +21,11 @@ def test_step_volume_extraction():
 def test_step_glb_exported():
     with tempfile.TemporaryDirectory() as tmpdir:
         result = _process_step_sync(TEST_CUBE_PATH, tmpdir)
+        assert Path(result["glb_path"]).exists()
+
+@pytest.mark.asyncio
+async def test_async_process_step_file():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = await process_step_file(TEST_CUBE_PATH, tmpdir)
+        assert abs(result["geometry"]["volume_mm3"] - 1000.0) < 0.1
         assert Path(result["glb_path"]).exists()

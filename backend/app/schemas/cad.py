@@ -47,6 +47,7 @@ class DXFGeometry(BaseModel):
 
 class UploadResponse(BaseModel):
     estimate_id: UUID
+    quote_ref: Optional[str] = None
     filename: str
     file_type: str
     geometry: Union[StepGeometry, DXFGeometry]

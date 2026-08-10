@@ -37,7 +37,7 @@ export function CostInputForm({
   values,
   onChange,
   showOverheadWarning = false,
-  quoteRef = 'CE-4402',
+  quoteRef = 'REF-Pending',
 }: CostInputFormProps) {
   const machines = useCostingStore(s => s.machines)
   const routingSteps = useCostingStore(s => s.routingSteps)
@@ -126,7 +126,7 @@ export function CostInputForm({
             <p className="text-[11px] text-slate-500">Material, multi-machine routing operations & logistics</p>
           </div>
           <span className="text-xs font-mono font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200" data-testid="quote-ref-badge">
-            Ref: {quoteRef}
+            Ref: {quoteRef || 'REF-Pending'}
           </span>
         </div>
 
