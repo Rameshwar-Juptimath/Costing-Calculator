@@ -254,3 +254,54 @@ def test_calculate_cost_endpoint_saves_quote_name():
     asyncio.run(run_calculate_test())
 
 
+def test_list_estimates_includes_geometry_data_and_thumbnail():
+    """Test list_estimates returns geometry_data with thumbnail and breakdown fields."""
+    from app.api.v1.costing import list_estimates
+    from datetime import datetime, timezone
+
+    tenant_id = uuid4()
+    est_id = uuid4()
+
+    async def run_list_test():
+        mock_db = MagicMock(spec=AsyncSession)
+        mock_estimate = CostEstimate(
+            id=est_id,
+            tenant_id=tenant_id,
+            user_id=uuid4(),
+            quote_number=1020,
+            quote_ref="REF-1020",
+            quote_name="spacer-with-material12",
+            filename="spacer-with-material12.STEP",
+            file_type="step",
+            grand_total=Decimal("3283142.57"),
+            currency="INR",
+            tier_applied="Pro",
+            geometry_data={
+                "volume_mm3": 543945.0,
+                "surface_area_mm2": 8200.0,
+                "bounding_box": {"x_mm": 82.0, "y_mm": 82.0, "z_mm": 103.0},
+                "thumbnail_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+            },
+            direct_cost={"material_name": "Mild Steel A36", "subtotal": 2134042.67},
+            overhead_cost={"subtotal": 656628.51},
+            commercials={"tax_amount": 590965.66, "margin_amount": 492471.38},
+        )
+        mock_estimate.created_at = datetime.now(timezone.utc)
+
+        mock_result = MagicMock()
+        mock_result.scalars.return_value.all.return_value = [mock_estimate]
+        mock_db.execute = AsyncMock(return_value=mock_result)
+
+        current_user = {"user_id": str(uuid4()), "tenant_id": str(tenant_id)}
+        res = await list_estimates(current_user, mock_db)
+
+        assert res.total == 1
+        assert res.items[0].quote_ref == "REF-1020"
+        assert res.items[0].geometry_data["thumbnail_url"].startswith("data:image/png;base64")
+        assert res.items[0].geometry_data["volume_mm3"] == 543945.0
+        assert res.items[0].direct_cost["material_name"] == "Mild Steel A36"
+
+    asyncio.run(run_list_test())
+
+
+

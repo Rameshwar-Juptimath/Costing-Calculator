@@ -16,6 +16,7 @@ export interface PDFExportData {
   volume: string
   surfaceArea: string
   boundingBox: string
+  thumbnailUrl?: string | null
 }
 
 interface PDFExportModalProps {
@@ -112,13 +113,21 @@ export function PDFExportModal({ data, onClose }: PDFExportModalProps) {
                 02 // COMPONENT SPECIFICATIONS & CAD DATA
               </h2>
               <div className="grid grid-cols-2 gap-6 items-start">
-                <div className="aspect-video bg-slate-900 rounded border border-slate-700 flex items-center justify-center p-4 text-slate-400 text-center relative overflow-hidden">
-                  <svg viewBox="0 0 300 200" className="w-full h-full stroke-indigo-400 fill-none stroke-2">
-                    <polygon points="50,60 210,40 210,140 50,160" />
-                    <polygon points="50,60 210,40 250,20 90,40" fill="#1e1b4b" />
-                    <polygon points="210,40 250,20 250,120 210,140" fill="#312e81" />
-                    <ellipse cx="130" cy="100" rx="30" ry="20" stroke="#a5b4fc" />
-                  </svg>
+                <div className="aspect-video bg-slate-900 rounded border border-slate-700 flex items-center justify-center p-2 text-slate-400 text-center relative overflow-hidden">
+                  {data.thumbnailUrl ? (
+                    <img
+                      src={data.thumbnailUrl}
+                      alt="CAD Part Preview"
+                      className="w-full h-full object-contain"
+                    />
+                  ) : (
+                    <svg viewBox="0 0 300 200" className="w-full h-full stroke-indigo-400 fill-none stroke-2">
+                      <polygon points="50,60 210,40 210,140 50,160" />
+                      <polygon points="50,60 210,40 250,20 90,40" fill="#1e1b4b" />
+                      <polygon points="210,40 250,20 250,120 210,140" fill="#312e81" />
+                      <ellipse cx="130" cy="100" rx="30" ry="20" stroke="#a5b4fc" />
+                    </svg>
+                  )}
                   <span className="absolute bottom-2 left-2 text-[10px] font-mono text-indigo-300 bg-slate-900/80 px-2 py-0.5 rounded">
                     CAD THUMBNAIL PREVIEW
                   </span>

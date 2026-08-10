@@ -40,7 +40,7 @@ export function CADViewer({ meshUrl }: { meshUrl: string | null }) {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
     camera.position.set(40, 40, 40)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true })
     renderer.setSize(width, height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
@@ -102,6 +102,17 @@ export function CADViewer({ meshUrl }: { meshUrl: string | null }) {
 
             scene.add(model)
             setLoading(false)
+
+            // Render immediate frame and capture thumbnail snapshot
+            renderer.render(scene, camera)
+            try {
+              const dataUrl = renderer.domElement.toDataURL('image/png')
+              if (dataUrl && dataUrl.length > 50) {
+                useCostingStore.getState().setThumbnail(dataUrl)
+              }
+            } catch (e) {
+              console.warn('Failed to capture CAD thumbnail snapshot:', e)
+            }
           },
           err => {
             console.error('GLTF parse error:', err)

@@ -93,6 +93,7 @@ interface CostingStore {
   filename: string | null
   geometry: any | null
   meshUrl: string | null
+  thumbnail: string | null
   costResult: any | null
   currentStep: 1 | 2 | 3
   stockForm: 'bar_stock' | 'sheet'
@@ -109,7 +110,8 @@ interface CostingStore {
 
   setUser: (user: AuthUser, features: UserFeatures) => void
   setToken: (token: string) => void
-  setEstimate: (id: string | null, geometry: any, meshUrl: string | null, filename?: string, quoteRef?: string, quoteName?: string) => void
+  setEstimate: (id: string | null, geometry: any, meshUrl: string | null, filename?: string, quoteRef?: string, quoteName?: string, thumbnail?: string | null) => void
+  setThumbnail: (thumbnail: string | null) => void
   setCostResult: (result: any) => void
   setStep: (step: 1 | 2 | 3) => void
   setStockForm: (stockForm: 'bar_stock' | 'sheet') => void
@@ -142,6 +144,7 @@ export const useCostingStore = create<CostingStore>()(persist(
     filename: null,
     geometry: null,
     meshUrl: null,
+    thumbnail: null,
     costResult: null,
     currentStep: 1,
     stockForm: 'bar_stock',
@@ -158,7 +161,7 @@ export const useCostingStore = create<CostingStore>()(persist(
 
     setUser: (user, features) => set({ user, features }),
     setToken: (token) => set({ token }),
-    setEstimate: (estimateId, geometry, meshUrl, filename, quoteRef, quoteName) => {
+    setEstimate: (estimateId, geometry, meshUrl, filename, quoteRef, quoteName, thumbnail) => {
       const recForm = geometry?.part_forms?.recommended_form || 'bar_stock'
       const rawMatName = geometry?.material_name || ''
       const currentMaterials = get().materials
@@ -178,6 +181,7 @@ export const useCostingStore = create<CostingStore>()(persist(
         estimateId: estimateId || null, 
         geometry, 
         meshUrl, 
+        thumbnail: thumbnail !== undefined ? thumbnail : get().thumbnail,
         filename: filename || null, 
         quoteRef: quoteRef || get().quoteRef || null,
         quoteName: defaultQuoteName,
@@ -194,6 +198,7 @@ export const useCostingStore = create<CostingStore>()(persist(
       const turningLength = geometry?.part_forms?.bar_stock?.height_mm || geometry?.bounding_box?.z_mm || 100
       get().applyCalculatedTurningTimeToRouting(turningDiameter, turningLength)
     },
+    setThumbnail: (thumbnail) => set({ thumbnail }),
     setCostResult: (costResult) => set({ costResult }),
     setStep: (currentStep) => set({ currentStep }),
     setStockForm: (stockForm) => set({ stockForm }),
@@ -331,6 +336,7 @@ export const useCostingStore = create<CostingStore>()(persist(
       filename: null,
       geometry: null,
       meshUrl: null,
+      thumbnail: null,
       costResult: null,
       currentStep: 1,
       stockForm: 'bar_stock',
@@ -345,7 +351,7 @@ export const useCostingStore = create<CostingStore>()(persist(
     }),
     logout: () => set({
       user: null, features: null, token: null, estimateId: null, quoteRef: null, quoteName: '', filename: null,
-      geometry: null, meshUrl: null, costResult: null, currentStep: 1, stockForm: 'bar_stock',
+      geometry: null, meshUrl: null, thumbnail: null, costResult: null, currentStep: 1, stockForm: 'bar_stock',
       machiningAllowance: { bar_stock_radius: 1.0, bar_stock_height: 3.0 },
       selectedMaterial: 'Mild Steel A36 - Carbide Tooling',
       selectedMaterialId: 'mat-2',

@@ -14,6 +14,11 @@ interface QuoteRow {
   price: number
   status: 'Draft' | 'Finalized' | 'Sent'
   manager: string
+  geometryData?: any
+  directCost?: any
+  overheadCost?: any
+  commercials?: any
+  thumbnailUrl?: string | null
 }
 
 const INITIAL_QUOTES: QuoteRow[] = [
@@ -88,16 +93,27 @@ export default function PastQuotesArchivePage() {
         .then(res => (res.ok ? res.json() : null))
         .then(data => {
           if (data && data.items) {
-            const mapped: QuoteRow[] = data.items.map((item: any) => ({
-              id: String(item.id),
-              ref: item.quote_ref || (item.quote_number ? `REF-${item.quote_number}` : 'REF-1001'),
-              date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-              projectName: item.quote_name || item.filename || 'Custom Component',
-              material: 'Aluminium 6061-T6',
-              price: item.grand_total ? Number(item.grand_total) : 0,
-              status: item.tier_applied === 'Pro' ? 'Finalized' : 'Draft',
-              manager: 'Lead Estimator',
-            }))
+            const mapped: QuoteRow[] = data.items.map((item: any) => {
+              const geom = item.geometry_data
+              const matName = item.direct_cost?.material_name || geom?.material_name || 'Aluminium 6061-T6'
+              const thumb = geom?.thumbnail_url || null
+
+              return {
+                id: String(item.id),
+                ref: item.quote_ref || (item.quote_number ? `REF-${item.quote_number}` : 'REF-1001'),
+                date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                projectName: item.quote_name || item.filename || 'Custom Component',
+                material: matName,
+                price: item.grand_total ? Number(item.grand_total) : 0,
+                status: item.tier_applied === 'Pro' ? 'Finalized' : 'Draft',
+                manager: 'Lead Estimator',
+                geometryData: geom,
+                directCost: item.direct_cost,
+                overheadCost: item.overhead_cost,
+                commercials: item.commercials,
+                thumbnailUrl: thumb,
+              }
+            })
             setQuotes(mapped)
           }
         })
@@ -147,19 +163,49 @@ export default function PastQuotesArchivePage() {
   })
 
   const openPDFExport = (quote: QuoteRow) => {
+    const geom = quote.geometryData
+    let volStr = '1,240 mm³'
+    let areaStr = '850 mm²'
+    let bboxStr = '120 × 80 × 45 mm'
+
+    if (geom) {
+      if (geom.volume_mm3 !== undefined && geom.volume_mm3 !== null) {
+        volStr = `${Number(geom.volume_mm3).toLocaleString()} mm³`
+      } else if (geom.total_area_mm2 !== undefined) {
+        volStr = `${Number(geom.total_area_mm2).toLocaleString()} mm² (2D)`
+      }
+
+      if (geom.surface_area_mm2 !== undefined && geom.surface_area_mm2 !== null) {
+        areaStr = `${Number(geom.surface_area_mm2).toLocaleString()} mm²`
+      } else if (geom.total_perimeter_mm !== undefined) {
+        areaStr = `${Number(geom.total_perimeter_mm).toLocaleString()} mm (Perimeter)`
+      }
+
+      if (geom.bounding_box) {
+        const { x_mm = 0, y_mm = 0, z_mm = 0 } = geom.bounding_box
+        bboxStr = `${x_mm} × ${y_mm} × ${z_mm} mm`
+      }
+    }
+
+    const dCost = quote.directCost?.subtotal ? Number(quote.directCost.subtotal) : (quote.price * 0.65)
+    const oCost = quote.overheadCost?.subtotal ? Number(quote.overheadCost.subtotal) : (quote.price * 0.20)
+    const tAmt = quote.commercials?.tax_amount ? Number(quote.commercials.tax_amount) : (quote.price * 0.18)
+    const mAmt = quote.commercials?.margin_amount ? Number(quote.commercials.margin_amount) : (quote.price * 0.15)
+
     setSelectedPDFData({
       quoteRef: quote.ref,
       date: quote.date,
       projectName: quote.projectName,
       material: quote.material,
-      directCost: quote.price * 0.65,
-      overheadCost: quote.price * 0.20,
-      taxAmount: quote.price * 0.18,
-      marginAmount: quote.price * 0.15,
+      directCost: dCost,
+      overheadCost: oCost,
+      taxAmount: tAmt,
+      marginAmount: mAmt,
       totalPrice: quote.price,
-      volume: '1,240 mm³',
-      surfaceArea: '850 mm²',
-      boundingBox: '120 × 80 × 45 mm',
+      volume: volStr,
+      surfaceArea: areaStr,
+      boundingBox: bboxStr,
+      thumbnailUrl: quote.thumbnailUrl || null,
     })
   }
 

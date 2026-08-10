@@ -141,10 +141,17 @@ export default function EstimatorWorkspacePage() {
       const currentMatId = state.selectedMaterialId
       const currentMatName = state.selectedMaterial
       const currentMeshUrl = state.meshUrl
+      const currentThumbnail = state.thumbnail
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
       const partDia = geometry?.part_forms?.bar_stock?.diameter_mm || ((geometry?.bounding_box?.x_mm || 50) + (geometry?.bounding_box?.y_mm || 50)) / 2
       const partLen = geometry?.part_forms?.bar_stock?.height_mm || (geometry?.bounding_box?.z_mm || 100)
+
+      const geometryPayload = geometry
+        ? { ...geometry, thumbnail_url: currentThumbnail || undefined }
+        : currentThumbnail
+          ? { thumbnail_url: currentThumbnail }
+          : undefined
 
       const payload = {
         estimate_id: currentEstimateId || undefined,
@@ -152,7 +159,7 @@ export default function EstimatorWorkspacePage() {
         filename: currentFilename || 'Custom Machined Part',
         currency: 'INR',
         mesh_url: currentMeshUrl || undefined,
-        geometry_data: geometry || undefined,
+        geometry_data: geometryPayload,
         direct_cost: {
           ...inputs,
           batch_size: batchSize || 100,

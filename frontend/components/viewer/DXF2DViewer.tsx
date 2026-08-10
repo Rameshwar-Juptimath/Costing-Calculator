@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { useCostingStore } from '@/store/costingStore'
 
 interface DXFEntity {
   type: string
@@ -99,6 +100,15 @@ export function DXF2DViewer({ geometry }: { geometry: DXFGeometry }) {
       ctx.beginPath()
       ctx.arc(centerX, centerY, 60, 0, 2 * Math.PI)
       ctx.stroke()
+    }
+
+    try {
+      const dataUrl = canvas.toDataURL('image/png')
+      if (dataUrl && dataUrl.length > 50) {
+        useCostingStore.getState().setThumbnail(dataUrl)
+      }
+    } catch (e) {
+      console.warn('Failed to capture 2D CAD thumbnail:', e)
     }
   }, [geometry])
 

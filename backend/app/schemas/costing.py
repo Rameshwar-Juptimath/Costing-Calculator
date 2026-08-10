@@ -125,6 +125,10 @@ class EstimateListItem(BaseModel):
     grand_total: Optional[Decimal]
     currency: str
     tier_applied: Optional[str]
+    geometry_data: Optional[dict] = None
+    direct_cost: Optional[dict] = None
+    overhead_cost: Optional[dict] = None
+    commercials: Optional[dict] = None
     created_at: datetime
 
 class EstimatesResponse(BaseModel):

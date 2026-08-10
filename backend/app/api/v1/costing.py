@@ -137,6 +137,10 @@ async def list_estimates(
                 grand_total=item.grand_total,
                 currency=item.currency,
                 tier_applied=item.tier_applied,
+                geometry_data=item.geometry_data,
+                direct_cost=item.direct_cost,
+                overhead_cost=item.overhead_cost,
+                commercials=item.commercials,
                 created_at=item.created_at
             )
             for item in items
