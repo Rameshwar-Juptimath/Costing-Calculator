@@ -7,8 +7,8 @@ Run once after migrations:
 Creates:
   - Basic and Pro subscription tiers
   - Plan features for each tier (per spec)
-  - A demo tenant on Basic tier with an admin user
-  - A demo tenant on Pro tier with another admin user
+  - A demo tenant on Basic tier with admin users (admin@example.com, BasicChetan@example.com)
+  - A demo tenant on Pro tier with admin users (pro_admin@example.com, ProChetan@example.com)
 """
 import asyncio
 
@@ -110,7 +110,8 @@ async def seed() -> None:
         res_user = await session.execute(
             select(User).where(User.email == settings.admin_email)
         )
-        if not res_user.scalar_one_or_none():
+        existing_basic_admin = res_user.scalar_one_or_none()
+        if not existing_basic_admin:
             hashed_password = password_hash.hash(settings.admin_password)
             session.add(
                 User(
@@ -121,6 +122,10 @@ async def seed() -> None:
                     is_active=True,
                 )
             )
+        else:
+            existing_basic_admin.hashed_password = password_hash.hash(settings.admin_password)
+            existing_basic_admin.tenant_id = tenant.id
+            existing_basic_admin.is_active = True
 
         # ── 5. Pro Demo Tenant ─────────────────────────────────────────────
         res_pro_tenant = await session.execute(
@@ -151,7 +156,8 @@ async def seed() -> None:
         res_pro_user = await session.execute(
             select(User).where(User.email == pro_admin_email)
         )
-        if not res_pro_user.scalar_one_or_none():
+        existing_pro_admin = res_pro_user.scalar_one_or_none()
+        if not existing_pro_admin:
             pro_hashed_password = password_hash.hash(pro_admin_password)
             session.add(
                 User(
@@ -162,6 +168,36 @@ async def seed() -> None:
                     is_active=True,
                 )
             )
+        else:
+            existing_pro_admin.hashed_password = password_hash.hash(pro_admin_password)
+            existing_pro_admin.tenant_id = pro_tenant.id
+            existing_pro_admin.is_active = True
+
+        # ── 6b. Additional Demo Users ──────────────────────────────────────
+        ADDITIONAL_USERS = [
+            ("ProChetan@example.com", "ProChetan@123!", pro_tenant.id, UserRole.admin.value),
+            ("BasicChetan@example.com", "BasicChetan@123!", tenant.id, UserRole.admin.value),
+        ]
+
+        for u_email, u_pwd, u_tenant_id, u_role in ADDITIONAL_USERS:
+            res_add_user = await session.execute(
+                select(User).where(User.email == u_email)
+            )
+            existing_user = res_add_user.scalar_one_or_none()
+            if not existing_user:
+                session.add(
+                    User(
+                        tenant_id=u_tenant_id,
+                        email=u_email,
+                        hashed_password=password_hash.hash(u_pwd),
+                        role=u_role,
+                        is_active=True,
+                    )
+                )
+            else:
+                existing_user.hashed_password = password_hash.hash(u_pwd)
+                existing_user.tenant_id = u_tenant_id
+                existing_user.is_active = True
 
         # ── 7. Default Manufacturing Materials ─────────────────────────────
         DEFAULT_MATERIALS = [
@@ -253,9 +289,11 @@ async def seed() -> None:
 
         print("✅ Seed process completed successfully.")
         print(f"   Basic Admin email: {settings.admin_email}")
+        print(f"   Basic User email:  BasicChetan@example.com")
         print(f"   Basic Tenant:      {tenant.name} (slug: {tenant.slug})")
         print(f"   Basic Tier:        Basic")
         print(f"   Pro Admin email:   {pro_admin_email}")
+        print(f"   Pro User email:    ProChetan@example.com")
         print(f"   Pro Tenant:        {pro_tenant.name} (slug: {pro_tenant.slug})")
         print(f"   Pro Tier:          Pro")
 

@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCostingStore } from '@/store/costingStore'
-import { Calculator, Percent, FileOutput, History, CreditCard, Shield, Sparkles, CheckCircle2 } from 'lucide-react'
+import { Calculator, Percent, FileOutput, History, CreditCard, Shield, Sparkles, CheckCircle2, Layers, Cpu } from 'lucide-react'
 import { formatINR } from '@/lib/currency'
 
 export default function CheckoutUpgradePage() {
@@ -72,17 +72,37 @@ export default function CheckoutUpgradePage() {
           {/* Left Side: Feature Summary (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5">
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
+                <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Material Library</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Custom cutting speeds (Vc), feed rates, densities, and CNC machinability presets.</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
+                <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                  <Cpu className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Work Centers & Machines</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">Shop floor machine profiles, custom hourly machine rates, and operator labor costs.</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
                 <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                   <Calculator className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Automated Overheads</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Absorption costing based on rent, power, and labor.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Absorption costing based on rent, power, and factory overhead labor.</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5">
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
                 <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                   <Percent className="w-5 h-5" />
                 </div>
@@ -92,7 +112,7 @@ export default function CheckoutUpgradePage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5">
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
                 <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                   <FileOutput className="w-5 h-5" />
                 </div>
@@ -102,7 +122,7 @@ export default function CheckoutUpgradePage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5">
+              <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-sm flex gap-3.5 hover:border-indigo-200 transition-colors">
                 <div className="w-10 h-10 rounded bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                   <History className="w-5 h-5" />
                 </div>

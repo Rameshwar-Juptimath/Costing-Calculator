@@ -28,7 +28,8 @@ A production-grade, multi-tenant SaaS application designed for precision manufac
   - **Process Routing Builder**: Sequence multiple machine operations (e.g. 3-Axis CNC VMC, CNC Lathe, 5-Axis Mill, Wire EDM, Surface Grinder, Laser Cutting) in real time.
   - **Batch Size Setup Amortization**: Automatically amortizes setup time across the user-defined batch quantity:
     $$\text{Step Cost Per Piece} = \left( \frac{\text{Setup Time}}{60} \times \frac{\text{Machine Rate} + \text{Operator Rate}}{\text{Batch Size}} \right) + \left( \frac{\text{Cycle Time}}{60} \times (\text{Machine Rate} + \text{Operator Rate}) \right)$$
-  - **Work Centers Management**: Pro Admin users can manage their machine library with custom machine hourly rates and operator rates in Company Settings.
+  - **Material Machinability Library & Work Centers**: Pro users can configure custom cutting speeds ($V_c$), feed rates ($f_z$), material density presets, and shop floor machine profiles with hourly and operator rates in Company Settings.
+  - **Work Centers Management**: Manage shop floor machine profiles with customizable machine hourly rates and operator rates in Company Settings.
   - **Direct Material Cost**: Stock volume calculation with density matrices (Aluminum 6061, Stainless Steel 316, Titanium, Tool Steel, Plastics) and scrap allowance.
   - **Factory Overheads Allocation**: Shop floor labor rates, machine hourly depreciation, energy consumption, quality control (QC), and secondary finishing.
   - **Commercials & Batch Scaling**: Volume discount curves, tax rates, and profit margin multipliers.
@@ -158,7 +159,9 @@ Initial application data is bootstrapped using `backend/seed.py`. The script is 
 | Account Role | Email Address | Password | Tenant / Organization | Tier | Accessible Features |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Basic Admin** | `admin@example.com` | `Admin@123!` | Demo Company (`demo`) | **Basic** | Direct Cost Calculation (Step 1). Overhead & Commercial steps locked with upsell triggers. |
+| **Basic User** | `BasicChetan@example.com` | `BasicChetan@123!` | Demo Company (`demo`) | **Basic** | Direct Cost Calculation (Step 1). Overhead & Commercial steps locked with upsell triggers. |
 | **Pro Admin** | `pro_admin@example.com` | `ProAdmin@123!` | Pro Demo Company (`pro-demo`) | **Pro** | Full Access: Direct Cost, Factory Overheads, Taxes, Profit Margins, & Quote PDF Export. |
+| **Pro User** | `ProChetan@example.com` | `ProChetan@123!` | Pro Demo Company (`pro-demo`) | **Pro** | Full Access: Direct Cost, Factory Overheads, Taxes, Profit Margins, & Quote PDF Export. |
 
 ---
 

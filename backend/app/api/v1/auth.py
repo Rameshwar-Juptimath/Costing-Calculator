@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from typing import AsyncGenerator
 
 from app.database import AsyncSessionLocal
@@ -38,7 +38,7 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_public_db)):
     result = await db.execute(
         select(User, Tenant)
         .join(Tenant, Tenant.id == User.tenant_id)
-        .where(User.email == req.email, User.is_active == True)
+        .where(func.lower(User.email) == func.lower(req.email), User.is_active == True)
     )
     row = result.first()
     if not row:
