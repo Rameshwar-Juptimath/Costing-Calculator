@@ -46,7 +46,7 @@ class DXFGeometry(BaseModel):
     drawing_units: str
 
 class UploadResponse(BaseModel):
-    estimate_id: UUID
+    estimate_id: Optional[UUID] = None
     quote_ref: Optional[str] = None
     filename: str
     file_type: str

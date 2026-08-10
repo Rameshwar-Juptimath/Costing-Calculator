@@ -26,8 +26,8 @@ async def upload_cad(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Accept a STEP/STP/DXF file, extract geometry, save a .glb mesh, and
-    create a CostEstimate record. Returns geometry data + mesh URL.
+    Accept a STEP/STP/DXF file, extract geometry, save a .glb mesh in temp storage.
+    Does NOT persist a draft CostEstimate in the database until the user explicitly generates a quote.
     """
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided.")
@@ -74,30 +74,12 @@ async def upload_cad(
         file_path.unlink(missing_ok=True)
         raise HTTPException(status_code=422, detail=f"CAD processing failed: {exc}") from exc
 
-    from app.services.quote_service import get_next_quote_ref
-    quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
-
-    estimate = CostEstimate(
-        tenant_id=current_user["tenant_id"],
-        user_id=current_user["user_id"],
-        quote_number=quote_number,
-        quote_ref=quote_ref,
-        filename=file.filename,
-        file_type="step" if is_step else "dxf",
-        geometry_data=result["geometry"],
-        mesh_file_path=result.get("glb_path"),
-        currency="INR",
-    )
-    db.add(estimate)
-    await db.flush()  # flush to get the generated UUID before commit
-
-    mesh_url = (
-        f"/api/v1/cad/mesh/{estimate.id}" if result.get("glb_path") else None
-    )
+    glb_id = result.get("glb_id")
+    mesh_url = f"/api/v1/cad/mesh/{glb_id}" if glb_id else None
 
     return UploadResponse(
-        estimate_id=estimate.id,
-        quote_ref=quote_ref,
+        estimate_id=None,
+        quote_ref=None,
         filename=file.filename,
         file_type="step" if is_step else "dxf",
         geometry=result["geometry"],
@@ -135,23 +117,31 @@ async def get_mesh(
     current_user: dict = Depends(require_feature("can_access_direct_cost")),
     db: AsyncSession = Depends(get_db),
 ):
+    upload_dir = Path(settings.upload_dir)
+    
+    # 1. Direct match by glb_id filename (uncommitted uploaded mesh)
+    direct_mesh_path = upload_dir / f"{estimate_id}.glb"
+    if direct_mesh_path.exists():
+        return FileResponse(
+            str(direct_mesh_path),
+            media_type="model/gltf-binary",
+            filename=f"{estimate_id}.glb",
+        )
+
+    # 2. Match by CostEstimate ID in database (saved estimate)
     try:
         est_uuid = uuid.UUID(estimate_id)
+        result = await db.execute(
+            select(CostEstimate).where(CostEstimate.id == est_uuid)
+        )
+        estimate = result.scalar_one_or_none()
+        if estimate and estimate.mesh_file_path and Path(estimate.mesh_file_path).exists():
+            return FileResponse(
+                estimate.mesh_file_path,
+                media_type="model/gltf-binary",
+                filename=f"{estimate_id}.glb",
+            )
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid estimate ID format.")
+        pass
 
-    result = await db.execute(
-        select(CostEstimate).where(CostEstimate.id == est_uuid)
-    )
-    estimate = result.scalar_one_or_none()
-
-    if not estimate:
-        raise HTTPException(status_code=404, detail="Estimate not found.")
-    if not estimate.mesh_file_path or not Path(estimate.mesh_file_path).exists():
-        raise HTTPException(status_code=404, detail="Mesh file not found.")
-
-    return FileResponse(
-        estimate.mesh_file_path,
-        media_type="model/gltf-binary",
-        filename=f"{estimate_id}.glb",
-    )
+    raise HTTPException(status_code=404, detail="Mesh file not found.")

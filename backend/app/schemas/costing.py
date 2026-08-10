@@ -54,8 +54,11 @@ class CommercialsInput(BaseModel):
 
 class CostPayload(BaseModel):
     estimate_id: Optional[str] = None
+    quote_name: Optional[str] = None
     filename: Optional[str] = None
     currency: str = "INR"
+    mesh_url: Optional[str] = None
+    geometry_data: Optional[dict] = None
     direct_cost: DirectCostInput
     overhead_cost: OverheadCostInput
     commercials: CommercialsInput
@@ -103,8 +106,9 @@ class CostTotals(BaseModel):
     grand_total: Decimal
 
 class CostResult(BaseModel):
-    estimate_id: str
+    estimate_id: Optional[str] = None
     quote_ref: Optional[str] = None
+    quote_name: Optional[str] = None
     currency: str
     currency_symbol: str = "₹"
     breakdown: CostBreakdown
@@ -115,6 +119,7 @@ class EstimateListItem(BaseModel):
     id: UUID
     quote_ref: Optional[str] = None
     quote_number: Optional[int] = None
+    quote_name: Optional[str] = None
     filename: str
     file_type: str
     grand_total: Optional[Decimal]

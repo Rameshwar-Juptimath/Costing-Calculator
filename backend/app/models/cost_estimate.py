@@ -17,6 +17,7 @@ class CostEstimate(Base, TimestampMixin):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), nullable=False)
     quote_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True, index=True)
     quote_ref: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, index=True)
+    quote_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     filename: Mapped[str] = mapped_column(String(255))
     file_type: Mapped[str] = mapped_column(String(10))  # 'step' or 'dxf'
     geometry_data: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)

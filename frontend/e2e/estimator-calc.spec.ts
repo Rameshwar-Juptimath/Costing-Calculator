@@ -65,12 +65,16 @@ test.describe('Estimator Workspace - Process Routing & Real-Time Calculation', (
     expect(initialText).toMatch(/^Ref:\s+(REF-\d{4}|REF-Pending)$/)
   })
 
-  test('Full Flow: Generates quote in Workspace, persists to DB, and displays sequential REF in Past Quotes', async ({ page }) => {
+  test('Full Flow: Generates quote with custom Quote Name in Workspace, persists to DB, and resets on return', async ({ page }) => {
     // 1. Open Estimator Workspace
     await loginAs(page, 'admin@example.com', 'Admin@123!')
     await page.goto('/dashboard')
 
-    // 2. Fill in Direct Costs
+    // 2. Enter Quote Name & Fill Direct Costs
+    const quoteNameInput = page.locator('[data-testid="input-quote-name"]')
+    await expect(quoteNameInput).toBeVisible()
+    await quoteNameInput.fill('Custom Drone Rotor Assembly')
+
     await page.locator('[data-testid="input-raw-material"]').fill('15000')
     await page.locator('[data-testid="input-tooling"]').fill('6000')
 
@@ -83,11 +87,18 @@ test.describe('Estimator Workspace - Process Routing & Real-Time Calculation', (
     await page.waitForURL('**/dashboard/history')
     await expect(page).toHaveURL(/\/dashboard\/history/)
 
-    // 5. Assert that the newly created quote reference (e.g. REF-1001) is visible in the first row of the table
+    // 5. Assert that the newly created quote reference (e.g. REF-1001) and Quote Name are visible in the first row
     const firstRowRef = page.locator('tbody tr td').first()
     await expect(firstRowRef).toBeVisible()
     const refText = await firstRowRef.innerText()
     expect(refText).toMatch(/^REF-\d{4}$/)
+
+    await expect(page.locator('tbody tr').first()).toContainText('Custom Drone Rotor Assembly')
+
+    // 6. Return to Estimator Workspace and verify fresh slate
+    await page.goto('/dashboard')
+    await expect(page.locator('[data-testid="input-quote-name"]')).toHaveValue('')
+    await expect(page.locator('[data-testid="quote-ref-badge"]')).toContainText('REF-Pending')
   })
 
   test('Past Quotes Archive: Delete quote button removes estimate', async ({ page }) => {

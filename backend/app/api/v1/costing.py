@@ -12,7 +12,10 @@ from app.services.cost_engine import calculate_cost
 
 from app.services.quote_service import get_next_quote_ref
 
+from app.config import get_settings
+
 router = APIRouter()
+settings = get_settings()
 
 @router.post("/calculate", response_model=CostResult)
 async def calculate_cost_endpoint(
@@ -46,6 +49,15 @@ async def calculate_cost_endpoint(
         except (ValueError, TypeError):
             estimate = None
 
+    mesh_path = None
+    if payload.mesh_url:
+        mesh_id = payload.mesh_url.split("/")[-1].split("?")[0]
+        candidate_path = Path(settings.upload_dir) / f"{mesh_id}.glb"
+        if candidate_path.exists():
+            mesh_path = str(candidate_path)
+
+    quote_name = payload.quote_name or payload.filename or "Custom Machined Part"
+
     if not estimate:
         quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
         estimate = CostEstimate(
@@ -53,8 +65,11 @@ async def calculate_cost_endpoint(
             user_id=current_user["user_id"],
             quote_number=quote_number,
             quote_ref=quote_ref,
-            filename=payload.filename or "Custom Component",
+            quote_name=quote_name,
+            filename=payload.filename or "Custom Machined Part",
             file_type="step",
+            geometry_data=payload.geometry_data,
+            mesh_file_path=mesh_path,
             currency=payload.currency or "INR",
         )
         db.add(estimate)
@@ -64,6 +79,13 @@ async def calculate_cost_endpoint(
             quote_number, quote_ref = await get_next_quote_ref(db, current_user["tenant_id"])
             estimate.quote_number = quote_number
             estimate.quote_ref = quote_ref
+        estimate.quote_name = quote_name
+        if payload.filename:
+            estimate.filename = payload.filename
+        if payload.geometry_data:
+            estimate.geometry_data = payload.geometry_data
+        if mesh_path and not estimate.mesh_file_path:
+            estimate.mesh_file_path = mesh_path
 
     estimate.direct_cost = result_data.breakdown.direct_cost.model_dump(mode="json")
     estimate.overhead_cost = result_data.breakdown.overhead_cost.model_dump(mode="json") if result_data.breakdown.overhead_cost else None
@@ -87,6 +109,7 @@ async def calculate_cost_endpoint(
     
     result_data.estimate_id = str(estimate.id)
     result_data.quote_ref = estimate.quote_ref
+    result_data.quote_name = estimate.quote_name
     return result_data
 
 @router.get("", response_model=EstimatesResponse)
@@ -108,6 +131,7 @@ async def list_estimates(
                 id=item.id,
                 quote_ref=item.quote_ref,
                 quote_number=item.quote_number,
+                quote_name=item.quote_name,
                 filename=item.filename,
                 file_type=item.file_type,
                 grand_total=item.grand_total,

@@ -17,6 +17,7 @@ export default function EstimatorWorkspacePage() {
   const geometry = useCostingStore(s => s.geometry)
   const filename = useCostingStore(s => s.filename)
   const setCostResult = useCostingStore(s => s.setCostResult)
+  const quoteName = useCostingStore(s => s.quoteName)
   const quoteRef = useCostingStore(s => s.quoteRef)
   const setQuoteRef = useCostingStore(s => s.setQuoteRef)
   const resetEstimate = useCostingStore(s => s.resetEstimate)
@@ -132,21 +133,26 @@ export default function EstimatorWorkspacePage() {
   const handleGenerateQuote = async () => {
     setIsSubmitting(true)
     try {
-      const token = useCostingStore.getState().token
-      const currentEstimateId = useCostingStore.getState().estimateId
-      const currentFilename = useCostingStore.getState().filename
-      const currentMatId = useCostingStore.getState().selectedMaterialId
-      const currentMatName = useCostingStore.getState().selectedMaterial
+      const state = useCostingStore.getState()
+      const token = state.token
+      const currentEstimateId = state.estimateId
+      const currentFilename = state.filename
+      const currentQuoteName = state.quoteName
+      const currentMatId = state.selectedMaterialId
+      const currentMatName = state.selectedMaterial
+      const currentMeshUrl = state.meshUrl
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
 
       const partDia = geometry?.part_forms?.bar_stock?.diameter_mm || ((geometry?.bounding_box?.x_mm || 50) + (geometry?.bounding_box?.y_mm || 50)) / 2
       const partLen = geometry?.part_forms?.bar_stock?.height_mm || (geometry?.bounding_box?.z_mm || 100)
 
       const payload = {
         estimate_id: currentEstimateId || undefined,
+        quote_name: currentQuoteName || currentFilename || 'Custom Machined Part',
         filename: currentFilename || 'Custom Machined Part',
         currency: 'INR',
+        mesh_url: currentMeshUrl || undefined,
+        geometry_data: geometry || undefined,
         direct_cost: {
           ...inputs,
           batch_size: batchSize || 100,
@@ -173,7 +179,6 @@ export default function EstimatorWorkspacePage() {
           fixed_salary: 0,
           expenses: 0,
         },
-
         commercials: {
           tax_rate: 18,
           profit_margin_rate: 15,
@@ -192,19 +197,19 @@ export default function EstimatorWorkspacePage() {
         if (res.ok) {
           const data = await res.json()
           setCostResult(data)
-          if (data.estimate_id) {
-            useCostingStore.setState({ estimateId: data.estimate_id })
-          }
-          if (data.quote_ref) {
-            setQuoteRef(data.quote_ref)
-          }
+          // Reset the workspace store so that upon returning to the estimator workspace,
+          // user starts with a brand new estimate where they upload the drawing once again.
+          resetEstimate()
+          router.push('/dashboard/history')
+          return
         }
       }
+      router.push('/dashboard/history')
     } catch (e) {
       console.error(e)
+      router.push('/dashboard/history')
     } finally {
       setIsSubmitting(false)
-      router.push('/dashboard/history')
     }
   }
 
@@ -222,7 +227,7 @@ export default function EstimatorWorkspacePage() {
                 </h1>
                 <p className="text-xs text-slate-400">Upload 3D (.step, .stp) or 2D (.dxf, .dwg, .dwf) technical drawings to render and proceed with costing</p>
               </div>
-              {(filename || quoteRef) && (
+              {(filename || quoteRef || quoteName || geometry) && (
                 <button
                   type="button"
                   onClick={handleNewEstimate}

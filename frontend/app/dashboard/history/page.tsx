@@ -87,14 +87,14 @@ export default function PastQuotesArchivePage() {
       })
         .then(res => (res.ok ? res.json() : null))
         .then(data => {
-          if (data && data.items && data.items.length > 0) {
+          if (data && data.items) {
             const mapped: QuoteRow[] = data.items.map((item: any) => ({
               id: String(item.id),
               ref: item.quote_ref || (item.quote_number ? `REF-${item.quote_number}` : 'REF-1001'),
               date: new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-              projectName: item.filename || 'Custom Component',
+              projectName: item.quote_name || item.filename || 'Custom Component',
               material: 'Aluminium 6061-T6',
-              price: item.grand_total ? Number(item.grand_total) : 452200,
+              price: item.grand_total ? Number(item.grand_total) : 0,
               status: item.tier_applied === 'Pro' ? 'Finalized' : 'Draft',
               manager: 'Lead Estimator',
             }))

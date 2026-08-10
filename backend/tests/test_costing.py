@@ -54,6 +54,7 @@ SAMPLE_COMMERCIALS = CommercialsInput(tax_rate=Decimal("18"), profit_margin_rate
 def test_quote_calculation_structure(pro_features):
     payload = CostPayload(
         estimate_id="test-est-1",
+        quote_name="Aerospace Turbine Disc V3",
         currency="INR",
         direct_cost=SAMPLE_DIRECT,
         overhead_cost=SAMPLE_OVERHEAD,
@@ -62,6 +63,25 @@ def test_quote_calculation_structure(pro_features):
     result = calculate_cost(payload, pro_features)
     assert result.totals.direct_subtotal == Decimal("24315.00")
     assert result.totals.grand_total > Decimal("0")
+
+
+def test_upload_response_schema_optional_estimate_id():
+    from app.schemas.cad import UploadResponse, StepGeometry, BoundingBox
+    resp = UploadResponse(
+        estimate_id=None,
+        quote_ref=None,
+        filename="part.step",
+        file_type="step",
+        geometry=StepGeometry(
+            volume_mm3=1000.0,
+            bounding_box=BoundingBox(x_mm=10.0, y_mm=10.0, z_mm=10.0),
+            surface_area_mm2=600.0
+        ),
+        mesh_url="/api/v1/cad/mesh/test-uuid"
+    )
+    assert resp.estimate_id is None
+    assert resp.quote_ref is None
+    assert resp.mesh_url == "/api/v1/cad/mesh/test-uuid"
 
 
 def test_sequential_quote_ref_logic_mocked():
@@ -176,4 +196,61 @@ def test_delete_estimate_endpoint_logic():
         assert exc_info.value.status_code == 404
 
     asyncio.run(run_delete_tests())
+
+
+def test_calculate_cost_endpoint_saves_quote_name():
+    """Test calculate_cost_endpoint persists quote_name and generates quote_ref."""
+    from app.api.v1.costing import calculate_cost_endpoint
+
+    tenant_id = uuid4()
+    user_id = uuid4()
+
+    async def run_calculate_test():
+        mock_db = MagicMock(spec=AsyncSession)
+        mock_plan_feature = PlanFeature(
+            can_access_direct_cost=True,
+            can_access_overhead_cost=True,
+            can_access_tax=True,
+            can_access_profit_margin=True,
+        )
+
+        mock_feature_result = MagicMock()
+        mock_feature_result.scalar_one_or_none.return_value = mock_plan_feature
+
+        mock_quote_num_result = MagicMock()
+        mock_quote_num_result.scalar.return_value = 1005
+
+        def mock_execute_side_effect(stmt):
+            # If executing select(PlanFeature)
+            mock_res = MagicMock()
+            mock_res.scalar_one_or_none.return_value = mock_plan_feature
+            mock_res.scalar.return_value = 1005
+            return mock_res
+
+        mock_db.execute = AsyncMock(side_effect=mock_execute_side_effect)
+        mock_db.add = MagicMock()
+        mock_db.flush = AsyncMock()
+        mock_db.commit = AsyncMock()
+        mock_db.refresh = AsyncMock()
+
+        payload = CostPayload(
+            estimate_id=None,
+            quote_name="Custom Titanium Flange V2",
+            filename="flange.step",
+            currency="INR",
+            direct_cost=SAMPLE_DIRECT,
+            overhead_cost=SAMPLE_OVERHEAD,
+            commercials=SAMPLE_COMMERCIALS,
+        )
+
+        current_user = {"user_id": str(user_id), "tenant_id": str(tenant_id)}
+        res = await calculate_cost_endpoint(payload, current_user, mock_db)
+
+        assert res.quote_name == "Custom Titanium Flange V2"
+        assert res.quote_ref == "REF-1006"
+        assert mock_db.add.called
+        assert mock_db.commit.called
+
+    asyncio.run(run_calculate_test())
+
 
