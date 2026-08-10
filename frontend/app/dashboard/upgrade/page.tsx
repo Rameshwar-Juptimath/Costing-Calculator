@@ -19,6 +19,10 @@ export default function CheckoutUpgradePage() {
   const monthlyPrice = 4999
   const yearlyPricePerMonth = 3999 // 20% discount
   const currentPrice = billingCycle === 'yearly' ? yearlyPricePerMonth : monthlyPrice
+  const billingMultiplier = billingCycle === 'yearly' ? 12 : 1
+  const subtotal = currentPrice * billingMultiplier
+  const gstAmount = subtotal * 0.18
+  const totalAmount = subtotal + gstAmount
 
   const handleUpgrade = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -258,15 +262,15 @@ export default function CheckoutUpgradePage() {
               <div className="p-3 bg-slate-50 rounded border border-slate-200 space-y-1.5 text-xs font-mono">
                 <div className="flex justify-between text-slate-600 font-sans">
                   <span>Pro License (Billed {billingCycle})</span>
-                  <span className="font-mono">{formatINR(currentPrice * 12)}</span>
+                  <span className="font-mono">{formatINR(subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-slate-600 font-sans">
                   <span>GST (18%)</span>
-                  <span className="font-mono">{formatINR(currentPrice * 12 * 0.18)}</span>
+                  <span className="font-mono">{formatINR(gstAmount)}</span>
                 </div>
                 <div className="border-t border-slate-200 pt-1.5 flex justify-between font-bold text-slate-900 text-sm">
                   <span className="font-sans">Total Billed Today</span>
-                  <span className="text-indigo-600">{formatINR(currentPrice * 12 * 1.18)}</span>
+                  <span className="text-indigo-600">{formatINR(totalAmount)}</span>
                 </div>
               </div>
 
